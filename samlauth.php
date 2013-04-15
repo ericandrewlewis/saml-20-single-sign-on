@@ -1,15 +1,15 @@
 <?php
 /*
-Plugin Name: SAML Auth
-Version: 0.8
-Plugin URI: http://www.it.tcu.edu
+Plugin Name: SAML 2.0 Single Sign-On
+Version: 0.81
+Plugin URI: http://keithbartholomew.com
 Description: Authenticate users using <a href="http://rnd.feide.no/simplesamlphp">simpleSAMLphp</a>.
 Author: Keith Bartholomew
-Author URI: http://personal.tcu.edu/kbartholomew/
+Author URI: http://keithbartholomew.com
 */
 
 define('SAMLAUTH_ROOT',dirname(__FILE__));
-define('SAMLAUTH_URL',plugins_url() . '/samlauth');
+define('SAMLAUTH_URL',plugins_url() . basename( dirname(__FILE__) ) );
 
 class SamlAuth
 {
