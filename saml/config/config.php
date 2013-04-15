@@ -22,7 +22,7 @@ $config = array (
 	 * external url, no matter where you come from (direct access or via the
 	 * reverse proxy).
 	 */
-	'baseurlpath'           => 'wp-content/plugins/samlauth/saml/www/',
+	'baseurlpath'           => constant('SAMLAUTH_URL') . '/saml/www/',
 	'certdir'               => 'cert/',
 	'loggingdir'            => 'log/',
 	'datadir'               => 'data/',
@@ -69,7 +69,7 @@ $config = array (
 	 * metadata listing and diagnostics pages.
 	 * You can also put a hash here; run "bin/pwgen.php" to generate one.
 	 */
-	'auth.adminpassword'		=> 'J49topa2...',
+	'auth.adminpassword'		=> 'notthedefaultadminpassword',
 	'admin.protectindexpage'	=> true,
 	'admin.protectmetadata'		=> false,
 
@@ -89,7 +89,7 @@ $config = array (
 	 * also as the technical contact in generated metadata.
 	 */
 	'technicalcontact_name'     => 'Administrator',
-	'technicalcontact_email'    => 'k.bartholomew@tcu.edu',
+	'technicalcontact_email'    => 'noreply@example.org',
 
 	/*
 	 * The timezone of the server. This option should be set to the timezone you want
