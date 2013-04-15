@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SAML 2.0 Single Sign-On
-Version: 0.81
+Version: 0.8.2
 Plugin URI: http://keithbartholomew.com
 Description: Authenticate users using <a href="http://rnd.feide.no/simplesamlphp">simpleSAMLphp</a>.
 Author: Keith Bartholomew
@@ -9,7 +9,7 @@ Author URI: http://keithbartholomew.com
 */
 
 define('SAMLAUTH_ROOT',dirname(__FILE__));
-define('SAMLAUTH_URL',plugins_url() . basename( dirname(__FILE__) ) );
+define('SAMLAUTH_URL',plugins_url() . '/' . basename( dirname(__FILE__) ) );
 
 class SamlAuth
 {
@@ -23,7 +23,6 @@ class SamlAuth
     if(is_array($this->opt))
     {
       require_once(constant('SAMLAUTH_ROOT') . '/saml/lib/_autoload.php');
-			//$this->saml = new SimpleSAML_Auth_Simple((string)get_current_blog_id());
 			if($this->opt['enabled'])
 			{
 				$this->saml = new SimpleSAML_Auth_Simple((string)get_current_blog_id());
@@ -208,7 +207,7 @@ function saml_idp_menus()
 		add_submenu_page('settings.php', 'Single Sign-On', 'Single Sign-On', 'manage_network', 'sso_idp.php', 'sso_idp');
 		add_submenu_page('settings.php', 'Single Sign-On', 'Single Sign-On', 'manage_network', 'sso_help.php', 'sso_help');
 		
-		remove_submenu_page( 'options-general.php', 'sso_help.php' );
+		remove_submenu_page( 'settings.php', 'sso_help.php' );
 	}
 	else
 	{
