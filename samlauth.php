@@ -22,6 +22,7 @@ class SamlAuth
     $this->opt = get_option('saml_authentication_options');
     if(is_array($this->opt))
     {
+      define('SAMLAUTH_CONFIG_PATH',$this->opt['config_path']);
       require_once(constant('SAMLAUTH_ROOT') . '/saml/lib/_autoload.php');
 			if($this->opt['enabled'])
 			{
@@ -166,6 +167,7 @@ function disable_function() {
 
 $saml_opts = array(
     'enabled' => false,
+    'config_path' => constant('SAMLAUTH_ROOT') . '/etc',
 		'idp' => '',
 		'nameidpolicy' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
 		'username_attribute' => 'http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname',
