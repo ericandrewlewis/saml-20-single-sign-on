@@ -31,6 +31,10 @@ class SamlAuth
       	add_action('wp_logout',array($this,'logout'));
 			}
     }
+    else
+    {
+      define('SAMLAUTH_CONFIG_PATH',constant('SAMLAUTH_ROOT') . '/etc');
+    }
     
     // Hash to generate password for SAML users.
     // This is never actually used by the user, but we need to know what it is, and it needs to be consistent
@@ -72,17 +76,24 @@ class SamlAuth
     
     $role = $this->update_role();
     
-    $user_opts = array(
-      'user_login' => $login ,
-      'user_pass'  => $this->user_password($login,$this->secretsauce) ,
-      'user_email' => $email ,
-      'first_name' => $first_name ,
-      'last_name'  => $last_name ,
-      'display_name' => $display_name ,
-      'role'       => $role
-      );
-    wp_insert_user($user_opts);
-    $this->simulate_signon($login);
+    if( $role !== FALSE )
+    {
+      $user_opts = array(
+        'user_login' => $login ,
+        'user_pass'  => $this->user_password($login,$this->secretsauce) ,
+        'user_email' => $email ,
+        'first_name' => $first_name ,
+        'last_name'  => $last_name ,
+        'display_name' => $display_name ,
+        'role'       => $role
+        );
+      wp_insert_user($user_opts);
+      $this->simulate_signon($login);
+    }
+    else
+    {
+      die('The website administrator has not given you permission to log in.');
+    }
   }
   
   private function simulate_signon($username)
@@ -121,9 +132,25 @@ class SamlAuth
     {
       $role = 'editor';
     }
-    else
+    elseif( in_array($this->opt['author_group'],$attrs[$this->opt['groups_attribute']]) )
+    {
+      $role = 'editor';
+    }
+    elseif( in_array($this->opt['contributor_group'],$attrs[$this->opt['groups_attribute']]) )
+    {
+      $role = 'editor';
+    }
+    elseif( in_array($this->opt['subscriber_group'],$attrs[$this->opt['groups_attribute']]) )
+    {
+      $role = 'editor';
+    }
+    elseif( $this->opt['allow_unlisted_users'])
     {
       $role = 'subscriber';
+    }
+    else
+    {
+      $role = FALSE;
     }
     
     $user = get_user_by('login',$attrs[$this->opt['username_attribute']]);
@@ -175,23 +202,19 @@ $saml_opts = array(
     'lastname_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname',
     'email_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
     'groups_attribute' => 'http://schemas.xmlsoap.org/claims/Group',
+    'super_admin_group' => '',
     'admin_group' => '',
-    'editor_group' => ''
+    'editor_group' => '',
+    'author_group' => '',
+    'contributor_group' => '',
+    'subscriber_group' => '',
+    'allow_unlisted_users' => true
   );
 
 function saml_menus()
 {
 	if( is_multisite() )
-	{
-		/*if( current_user_can('manage_network') )
-		{
-			add_action('network_admin_menu', 'saml_idp_menus');
-		}
-		if( current_user_can('administrator') )
-		{
-			add_action('admin_menu', 'saml_sp_menus');
-		}*/
-		
+	{	
 		add_action('network_admin_menu', 'saml_idp_menus');
 		add_action('admin_menu', 'saml_sp_menus');
 	}
