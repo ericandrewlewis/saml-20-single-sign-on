@@ -22,6 +22,15 @@
     
     if($config_path != $saml_opts['config_path'])
     {
+      $old = $saml_opts['config_path'];
+      $new = $config_path;
+      if(is_writable( dirname($new) ) )
+      {
+        if(file_exists($new))
+        {
+          
+        }
+      }
       // We need to do several things: 
       // 1. Make sure the new path exists/is writable
       // 2. Copy all the stuff from the current path to the new one
@@ -37,6 +46,7 @@
     		$saml_opts = get_option('saml_authentication_options');
 
 ?>
+
 <div class="wrap">
 <p><em>Note:</em> Once you enable SAML authentication, WordPress authentication will happen through the Single Sign-On plugin, even if you misconfigure it. To avoid being locked out of WordPress, use a second browser to check your settings before you end this session as Administrator. If you get an error in the other browser, correct your settings here. If you can not resolve the issue, disable this plug-in.</p>
 
@@ -60,7 +70,7 @@
     ?>
     <input type="radio" name="config_path" value="plugin" <?php if($current_path == 'plugin'){echo 'checked="checked"';}?> />&nbsp;&nbsp;<label for="config_path">With the plugin files</label><br/>
     <input type="radio" name="config_path" value="upload"<?php if($current_path == 'upload'){echo 'checked="checked"';}?> />&nbsp;&nbsp;<label for="config_path">In the uploads folder</label><br/>
-    <span class="setting-description">Some servers may not let you save files in the plugin directory, so you may want to put them in your uploads folder instead.</span>
+    <span class="setting-description">Some servers may not let you save files in the plugin directory, so you may want to put them in your uploads folder instead.<br/> CURRENT: <?php echo constant('SAMLAUTH_CONFIG_PATH');?></span>
     </td>
   </tr>
   <tr>
