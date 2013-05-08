@@ -1,13 +1,14 @@
 <?php
 /*
 Plugin Name: SAML 2.0 Single Sign-On
-Version: 0.8.5
+Version: 0.8.6
 Plugin URI: http://keithbartholomew.com
 Description: Authenticate users using <a href="http://rnd.feide.no/simplesamlphp">simpleSAMLphp</a>.
 Author: Keith Bartholomew
 Author URI: http://keithbartholomew.com
 */
 
+define('SAMLAUTH_CONF',"foobar");
 define('SAMLAUTH_ROOT',dirname(__FILE__));
 define('SAMLAUTH_URL',plugins_url() . '/' . basename( dirname(__FILE__) ) );
 
@@ -19,7 +20,9 @@ class SamlAuth
   
   function __construct()
   {
-    $this->opt = get_option('saml_authentication_options');
+		
+    
+		$this->opt = get_option('saml_authentication_options');
     if(is_array($this->opt))
     {
       define('SAMLAUTH_CONFIG_PATH',$this->opt['config_path']);
@@ -33,7 +36,7 @@ class SamlAuth
     }
     else
     {
-      define('SAMLAUTH_CONFIG_PATH',constant('SAMLAUTH_ROOT') . '/etc');
+      define('SAMLAUTH_CONFIG_PATH',constant('SAMLAUTH_CONF'));
     }
     
     // Hash to generate password for SAML users.
@@ -171,7 +174,6 @@ class SamlAuth
 }
 
 $Saml = new SamlAuth();
-
 function show_password_fields($show_password_fields) {
   return false;
 }
@@ -210,6 +212,12 @@ $saml_opts = array(
     'subscriber_group' => '',
     'allow_unlisted_users' => true
   );
+
+function instantiate()
+{
+	global $Saml;
+	$Saml = new SamlAuth();
+}
 
 function saml_menus()
 {
