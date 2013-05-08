@@ -14,7 +14,7 @@
 		$contents .= '  SingleLogoutService = "' . $_POST['idp_logout'] . '"'."\n";
 		$contents .= '  certFingerprint = "' . str_replace(':','',$_POST['idp_fingerprint']) . '"'."\n";
 
-		$save_status = file_put_contents( constant('SAMLAUTH_ROOT') . '/etc/config/saml20-idp-remote.ini', $contents ); 
+		$save_status = file_put_contents( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini', $contents ); 
 	}
 	
 	  $metadata = array(); // the variable used in the idp file.
@@ -24,16 +24,17 @@
 	<h2>SAML Identity Provider Settings</h2>
   <?php 
 	  // Check some config setttings.
-		$etc_dir = constant('SAMLAUTH_ROOT') . '/etc';
+		
+		$etc_dir =  constant('SAMLAUTH_CONF');
 		$etc_writable = is_writable($etc_dir);
-		$idp_ini_present = 	file_exists(constant('SAMLAUTH_ROOT') . '/etc/config/saml20-idp-remote.ini');
+		$idp_ini_present = 	file_exists(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini');
 	
 		if( !$etc_writable )
 		{
 			echo '<div class="error below-h2"><p>I\'m not able to write to the folder <code>' . $etc_dir . '</code> which means you won\'t be able to change any settings! Please ensure that the web server has permission to make changes to this folder.</p></div>'."\n";
 		}
 		
-		if( $save_status === FALSE )
+		if( isset($save_status) && $save_status === FALSE )
 		{
 			echo '<div class="error below-h2"><p>Your changes couldn&rsquo;t be saved. Is the file writable by the server?</p></div>'."\n";
 		}

@@ -8,6 +8,8 @@ Author: Keith Bartholomew
 Author URI: http://keithbartholomew.com
 */
 
+$upload_dir = wp_upload_dir();
+define('SAMLAUTH_CONF', $upload_dir['basedir'] . '/saml-20-single-sign-on/etc');
 define('SAMLAUTH_ROOT',dirname(__FILE__));
 define('SAMLAUTH_URL',plugins_url() . '/' . basename( dirname(__FILE__) ) );
 
@@ -22,18 +24,14 @@ class SamlAuth
     $this->opt = get_option('saml_authentication_options');
     if(is_array($this->opt))
     {
-      define('SAMLAUTH_CONFIG_PATH',$this->opt['config_path']);
       require_once(constant('SAMLAUTH_ROOT') . '/saml/lib/_autoload.php');
 			if($this->opt['enabled'])
 			{
 				$this->saml = new SimpleSAML_Auth_Simple((string)get_current_blog_id());
-      	add_action('wp_authenticate',array($this,'authenticate'));
+				
+				add_action('wp_authenticate',array($this,'authenticate'));
       	add_action('wp_logout',array($this,'logout'));
 			}
-    }
-    else
-    {
-      define('SAMLAUTH_CONFIG_PATH',constant('SAMLAUTH_ROOT') . '/etc');
     }
     
     // Hash to generate password for SAML users.

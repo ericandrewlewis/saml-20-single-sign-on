@@ -11,7 +11,7 @@
 			$key = file_get_contents($_FILES['privatekey']['tmp_name']);
 			if(openssl_x509_check_private_key($cert,$key))
 			{
-				$upload_dir = constant('SAMLAUTH_ROOT') . '/etc/certs/' . get_current_blog_id();
+				$upload_dir = constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id();
 				if(! is_dir($upload_dir))
 				{
 					mkdir($upload_dir, 0775);
@@ -52,7 +52,7 @@
 ?>
 <div class="wrap">
 <?php
-	$idp = parse_ini_file( constant('SAMLAUTH_ROOT') . '/etc/config/saml20-idp-remote.ini',true);
+	$idp = parse_ini_file( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',true);
 	if($idp === FALSE)
 	{
 		echo '<div class="error below-h2"><p>No Identity Providers have been configured. You will not be able to configure SAML for Single Sign-On until this is set up.</p></div>'."\n";
@@ -99,10 +99,10 @@
   <tr valign="top">
     <th scope="row"><label for="certificate">Signing Certificate</label></th> 
     <?php
-			$certificate = file_get_contents( constant('SAMLAUTH_ROOT') . '/etc/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.cer' );
+			$certificate = file_get_contents( constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.cer' );
 			$certificate_cn = openssl_x509_parse($certificate);
 			$certificate_cn = $certificate_cn['subject']['CN'];
-			$privatekey = file_get_contents( constant('SAMLAUTH_ROOT') . '/etc/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.key' );
+			$privatekey = file_get_contents( constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.key' );
 			$privatekey_match = openssl_x509_check_private_key($certificate,$privatekey);
 		?>
     <td><input type="file" name="certificate" id="certificate" /><?php if($certificate !== false ) {echo '&nbsp;<span class="green">Using certificate for: <strong>' . $certificate_cn . '</strong>.</span>';}?>

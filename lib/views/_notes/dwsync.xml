@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <dwsync>
-<file name="sp_options.php" server="tcuadmin.wpengine.com/wp-content/plugins/samlauth/" local="130102774326177943" remote="130102774650000000" Dst="2" />
-<file name="idp_options.php" server="tcuadmin.wpengine.com/wp-content/plugins/samlauth/" local="130102550874288300" remote="130102551190000000" Dst="2" />
+<file name="sso_idp.php" server="keithbartholomew.com//opt/www/wordpress/wp-content/plugins/saml-20-single-sign-on/" local="130124369676614900" remote="130124370120000000" Dst="2" />
+<file name="sso_sp.php" server="keithbartholomew.com//opt/www/wordpress/wp-content/plugins/saml-20-single-sign-on/" local="130124360763604900" remote="130124361210000000" Dst="2" />
+<file name="sso_general.php" server="keithbartholomew.com//opt/www/wordpress/wp-content/plugins/saml-20-single-sign-on/" local="130124375514044900" remote="130124375960000000" Dst="2" />
 </dwsync>
