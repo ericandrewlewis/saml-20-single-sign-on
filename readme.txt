@@ -3,7 +3,7 @@ Contributors: ktbartholomew
 Tags: sso, saml, single sign-on, simplesamlphp, onelogin, ssocircle
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 0.8.6
+Stable tag: 0.8.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,3 +33,18 @@ You may have noticed the fields that ask you to upload an SSL certificate and pr
 = Can I have some users use single sign-on and others use the standard WordPress login method? =
 
 This is not currently possible. You should make sure that all necessary administrators have SSO-ready user accounts before enabling the plugin.
+
+== Changelog ==
+
+= 0.8.7 =
+* Uploading a certificate and private key is now optional, which makes IdP-initiated testing much simpler.
+* Folders and config files are created if they don't already exist, which fixes many issues with various screens being blank.
+
+= 0.8.6 =
+* Moved configuration files from plugins directory to a subdirectory in uploads to ensure the plugin doesn't break itself when updated.
+
+
+== Upgrade Notice ==
+
+= 0.8.6 =
+This update will delete your certificates and IdP info (Hint: Back up before upgrading), but this is the last time it will ever happen! This update fixes that problem going forward.
