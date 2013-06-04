@@ -1,0 +1,5 @@
+.setting-description {color: #999;}
+.green {color: #093;}
+.metadata-box {border: 1px dashed #ccc; background: #eee;overflow-x:auto;}
+.help-contents {border: solix 1px #ccc; background: #eee;margin: 1em;padding:1em;float:left;}
+.helpList ol, .helpList ul {margin-left: 1em;}
