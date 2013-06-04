@@ -40,7 +40,6 @@ class SamlAuth
 			'subscriber_group' => '',
 			'allow_unlisted_users' => true
 		);
-      	
       	update_option('saml_authentication_options',$this->opt);
   
     }
