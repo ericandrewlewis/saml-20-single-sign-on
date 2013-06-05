@@ -7,37 +7,7 @@
     if(get_option('saml_authentication_options'))
     		$saml_opts = get_option('saml_authentication_options');
     		
-    switch($_POST['config_path'])
-    {
-      case 'upload':
-        $upload = wp_upload_dir();
-        $config_path = $upload['basedir'] . '/etc';
-      break;
-      case 'plugin':
-      default:
-        $config_path = constant('SAMLAUTH_ROOT') . '/etc';
-      break; 
-    }
     $saml_opts['enabled'] = ($_POST['enabled'] == 'enabled') ? true : false;
-    
-    if($config_path != $saml_opts['config_path'])
-    {
-      $old = $saml_opts['config_path'];
-      $new = $config_path;
-      if(is_writable( dirname($new) ) )
-      {
-        if(file_exists($new))
-        {
-          
-        }
-      }
-      // We need to do several things: 
-      // 1. Make sure the new path exists/is writable
-      // 2. Copy all the stuff from the current path to the new one
-      // 3. Remove the old stuff (if possible?)
-    }
-    
-    $saml_opts['config_path'] = $config_path; 
     
     update_option('saml_authentication_options', $saml_opts);
   }
@@ -57,20 +27,6 @@
     <?php
 			$checked = ($saml_opts['enabled']) ? ' checked="checked"' : '';
 		?><td><input type="checkbox" name="enabled" id="enabled" value="enabled" <?php echo $checked;?> />
-    </td>
-  </tr>
-  <tr valign="top">
-    <th scope="row">Store configuration files: </label></th>
-    <td>
-    <?php
-    if($saml_opts['config_path'] == constant('SAMLAUTH_ROOT') . '/etc' || !isset($saml_opts['config_path']))
-      $current_path = 'plugin';
-    else
-      $current_path = 'upload';
-    ?>
-    <input type="radio" name="config_path" value="plugin" <?php if($current_path == 'plugin'){echo 'checked="checked"';}?> />&nbsp;&nbsp;<label for="config_path">With the plugin files</label><br/>
-    <input type="radio" name="config_path" value="upload"<?php if($current_path == 'upload'){echo 'checked="checked"';}?> />&nbsp;&nbsp;<label for="config_path">In the uploads folder</label><br/>
-    <span class="setting-description">Some servers may not let you save files in the plugin directory, so you may want to put them in your uploads folder instead.<br/> CURRENT: <?php echo constant('SAMLAUTH_CONFIG_PATH');?></span>
     </td>
   </tr>
   <tr>

@@ -5,58 +5,58 @@
   if (isset($_POST['submit']) ) 
   {    
     
-	  if( ( isset($_FILES['certificate']) && isset($_FILES['privatekey']) ) && ( $_FILES['certificate']['error'] == 0 && $_FILES['privatekey']['error'] == 0 ) )
-		{
-			$cert = file_get_contents($_FILES['certificate']['tmp_name']);
-			$key = file_get_contents($_FILES['privatekey']['tmp_name']);
-			if(openssl_x509_check_private_key($cert,$key))
-			{
-				$upload_dir = constant('SAMLAUTH_ROOT') . '/etc/certs/' . get_current_blog_id();
-				if(! is_dir($upload_dir))
-				{
-					mkdir($upload_dir, 0775);
-				}
-				$cert_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.cer', $cert) ) ? true : false ;
-				$key_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.key', $key) ) ? true : false ;
-			}
-			else
-			{
-				echo '<div class="error below-h2"><p>The certificate and private key you provided do not correspond to one another. They were not uploaded.</p></div>'."\n";
-			}
-		}
-		if(get_option('saml_authentication_options'))
-  		$saml_opts = get_option('saml_authentication_options');
+      if( ( isset($_FILES['certificate']) && isset($_FILES['privatekey']) ) && ( $_FILES['certificate']['error'] == 0 && $_FILES['privatekey']['error'] == 0 ) )
+        {
+            $cert = file_get_contents($_FILES['certificate']['tmp_name']);
+            $key = file_get_contents($_FILES['privatekey']['tmp_name']);
+            if(openssl_x509_check_private_key($cert,$key))
+            {
+                $upload_dir = constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id();
+                if(! is_dir($upload_dir))
+                {
+                    mkdir($upload_dir, 0775);
+                }
+                $cert_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.cer', $cert) ) ? true : false ;
+                $key_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.key', $key) ) ? true : false ;
+            }
+            else
+            {
+                echo '<div class="error below-h2"><p>The certificate and private key you provided do not correspond to one another. They were not uploaded.</p></div>'."\n";
+            }
+        }
+        if(get_option('saml_authentication_options'))
+        $saml_opts = get_option('saml_authentication_options');
 
-		// Options Array Update
-			$saml_opts['idp'] = $_POST['idp'];
-			$saml_opts['nameidpolicy'] = $_POST['nameidpolicy'];
-      $saml_opts['username_attribute'] = $_POST['username_attribute'];
-      $saml_opts['firstname_attribute'] = $_POST['firstname_attribute'];
-      $saml_opts['lastname_attribute'] = $_POST['lastname_attribute'];
-      $saml_opts['email_attribute'] = $_POST['email_attribute'];
-      $saml_opts['groups_attribute'] = $_POST['groups_attribute'];
-      $saml_opts['admin_group'] = $_POST['admin_group'];
-      $saml_opts['editor_group'] = $_POST['editor_group'];
-      $saml_opts['author_group'] = $_POST['author_group'];
-      $saml_opts['contributor_group'] = $_POST['contributor_group'];
-      $saml_opts['subscriber_group'] = $_POST['subscriber_group'];
-      $saml_opts['allow_unlisted_users'] = ($_POST['allow_unlisted_users'] == 'allow') ? true : false;
+        // Options Array Update
+        $saml_opts['idp'] = $_POST['idp'];
+        $saml_opts['nameidpolicy'] = $_POST['nameidpolicy'];
+        $saml_opts['username_attribute'] = $_POST['username_attribute'];
+        $saml_opts['firstname_attribute'] = $_POST['firstname_attribute'];
+        $saml_opts['lastname_attribute'] = $_POST['lastname_attribute'];
+        $saml_opts['email_attribute'] = $_POST['email_attribute'];
+        $saml_opts['groups_attribute'] = $_POST['groups_attribute'];
+        $saml_opts['admin_group'] = $_POST['admin_group'];
+        $saml_opts['editor_group'] = $_POST['editor_group'];
+        $saml_opts['author_group'] = $_POST['author_group'];
+        $saml_opts['contributor_group'] = $_POST['contributor_group'];
+        $saml_opts['subscriber_group'] = $_POST['subscriber_group'];
+        $saml_opts['allow_unlisted_users'] = ($_POST['allow_unlisted_users'] == 'allow') ? true : false;
 
-     update_option('saml_authentication_options', $saml_opts);
+         update_option('saml_authentication_options', $saml_opts);
   }
   
   // Get Options
   if(get_option('saml_authentication_options'))
-		$saml_opts = get_option('saml_authentication_options');
+        $saml_opts = get_option('saml_authentication_options');
 
 ?>
 <div class="wrap">
 <?php
-	$idp = parse_ini_file( constant('SAMLAUTH_ROOT') . '/etc/config/saml20-idp-remote.ini',true);
-	if($idp === FALSE)
-	{
-		echo '<div class="error below-h2"><p>No Identity Providers have been configured. You will not be able to configure SAML for Single Sign-On until this is set up.</p></div>'."\n";
-	}
+    $idp = parse_ini_file( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',true);
+    if($idp === FALSE)
+    {
+        echo '<div class="error below-h2"><p>No Identity Providers have been configured. You will not be able to configure SAML for Single Sign-On until this is set up.</p></div>'."\n";
+    }
 ?>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true" enctype="multipart/form-data">
 <input type="hidden" name="MAX_FILE_SIZE" value="4194304" /> 
@@ -70,8 +70,8 @@
     <td>
     <select name="idp" id="idp">
       <?php foreach($idp as $key => $array) {
-			$selected = ($key == $saml_opts['idp']) ? ' selected="selected"' : '';
-    	echo '<option value="' . $key . '"' . $selected . '>' . $array['name'] . '</option>'."\n";
+            $selected = ($key == $saml_opts['idp']) ? ' selected="selected"' : '';
+        echo '<option value="' . $key . '"' . $selected . '>' . $array['name'] . '</option>'."\n";
       } ?>
     </select>
     </td>
@@ -79,19 +79,19 @@
   <tr valign="top">
     <th scope="row"><label for="nameidpolicy">NameID Policy: </label></th> 
     <td>
-    	<select name="nameidpolicy">
+        <select name="nameidpolicy">
       <?php
-				$policies = array(
-				  'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
-					'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
-					'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
-				);
-				foreach($policies as $policy)
-				{
-					$selected = ( $saml_opts['nameidpolicy'] == $policy ) ? ' selected="selected"' : '';
-					echo '<option value="' . $policy . '"' . $selected . '>' . $policy . '</option>'."\n";
-				}
-			?>
+                $policies = array(
+                  'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+                    'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+                    'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
+                );
+                foreach($policies as $policy)
+                {
+                    $selected = ( $saml_opts['nameidpolicy'] == $policy ) ? ' selected="selected"' : '';
+                    echo '<option value="' . $policy . '"' . $selected . '>' . $policy . '</option>'."\n";
+                }
+            ?>
       </select><br/>
       <span class="setting-description">Your site will require a NameID in this format, and fail otherwise. Default: emailAddress</span>
     </td>
@@ -99,12 +99,21 @@
   <tr valign="top">
     <th scope="row"><label for="certificate">Signing Certificate</label></th> 
     <?php
-			$certificate = file_get_contents( constant('SAMLAUTH_ROOT') . '/etc/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.cer' );
-			$certificate_cn = openssl_x509_parse($certificate);
-			$certificate_cn = $certificate_cn['subject']['CN'];
-			$privatekey = file_get_contents( constant('SAMLAUTH_ROOT') . '/etc/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.key' );
-			$privatekey_match = openssl_x509_check_private_key($certificate,$privatekey);
-		?>
+            if(file_exists(constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.cer') && file_exists(constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.key'))
+            {
+	            $certificate = file_get_contents( constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.cer' );
+	            $certificate_cn = openssl_x509_parse($certificate);
+	            $certificate_cn = $certificate_cn['subject']['CN'];
+	            $privatekey = file_get_contents( constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.key' );
+	            $privatekey_match = openssl_x509_check_private_key($certificate,$privatekey);
+            }
+            else
+            {
+            	$certificate = false;
+            	$privatekey = false;
+            	$privatekey_match = false;
+            }
+        ?>
     <td><input type="file" name="certificate" id="certificate" /><?php if($certificate !== false ) {echo '&nbsp;<span class="green">Using certificate for: <strong>' . $certificate_cn . '</strong>.</span>';}?>
     <br/>
     <span class="setting-description">This doesn't have to be the certificate used to secure your website, it can just be self-signed.</span> 

@@ -8,7 +8,8 @@ Author: Keith Bartholomew
 Author URI: http://keithbartholomew.com
 */
 
-define('SAMLAUTH_CONF',"foobar");
+$upload_dir = wp_upload_dir();
+define('SAMLAUTH_CONF', $upload_dir['basedir'] . '/saml-20-single-sign-on/etc');
 define('SAMLAUTH_ROOT',dirname(__FILE__));
 define('SAMLAUTH_URL',plugins_url() . '/' . basename( dirname(__FILE__) ) );
 
@@ -20,23 +21,39 @@ class SamlAuth
   
   function __construct()
   {
-		
-    
-		$this->opt = get_option('saml_authentication_options');
+    if(! get_option('saml_authentication_options') )
+    {
+    	$this->opt = array(
+			'enabled' => false,
+			'idp' => 'https://your-idp.net',
+			'nameidpolicy' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+			'username_attribute' => 'http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname',
+			'firstname_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname',
+			'lastname_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname',
+			'email_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+			'groups_attribute' => 'http://schemas.xmlsoap.org/claims/Group',
+			'super_admin_group' => '',
+			'admin_group' => '',
+			'editor_group' => '',
+			'author_group' => '',
+			'contributor_group' => '',
+			'subscriber_group' => '',
+			'allow_unlisted_users' => true
+		);
+      	update_option('saml_authentication_options',$this->opt);
+  
+    }
+    $this->opt = get_option('saml_authentication_options');
     if(is_array($this->opt))
     {
-      define('SAMLAUTH_CONFIG_PATH',$this->opt['config_path']);
       require_once(constant('SAMLAUTH_ROOT') . '/saml/lib/_autoload.php');
 			if($this->opt['enabled'])
 			{
 				$this->saml = new SimpleSAML_Auth_Simple((string)get_current_blog_id());
-      	add_action('wp_authenticate',array($this,'authenticate'));
-      	add_action('wp_logout',array($this,'logout'));
+				
+				add_action('wp_authenticate',array($this,'authenticate'));
+		      	add_action('wp_logout',array($this,'logout'));
 			}
-    }
-    else
-    {
-      define('SAMLAUTH_CONFIG_PATH',constant('SAMLAUTH_CONF'));
     }
     
     // Hash to generate password for SAML users.
@@ -47,6 +64,7 @@ class SamlAuth
     //   it's messy, so be careful!
 
     $this->secretsauce = constant('AUTH_KEY');
+    $this->set_environment();
   }
   
   public function authenticate()
@@ -171,9 +189,38 @@ class SamlAuth
     return $hash;
   }
   
-}
+  private function set_environment()
+  {
+  	if(! file_exists( constant('SAMLAUTH_CONF') ) )
+  	{
+  		mkdir( constant('SAMLAUTH_CONF'), 0775, true );
+  	}
+  	
+  	if(! file_exists( constant('SAMLAUTH_CONF') . '/certs') )
+  	{
+  		mkdir( constant('SAMLAUTH_CONF') . '/certs', 0775, true );
+  	}
+  	
+  	if(! file_exists( constant('SAMLAUTH_CONF') . '/config' ) )
+  	{
+  		mkdir( constant('SAMLAUTH_CONF') . '/config' , 0775, true );
+  	}
+  	
+  	if(! file_exists(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini') )
+  	{
+  		file_put_contents(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',"[https://your-idp.net]\nname = Your IdP\nSingleSignOnService = https://your-idp.net/SSOService\nSingleLogoutService = https://your-idp.net/SingleLogoutService\ncertFingerprint = 0000000000000000000000000000000000000000");
+  	}
+  	
+  	if(! file_exists( constant('SAMLAUTH_CONF') . '/certs/.htaccess' ) )
+  	{
+  		file_put_contents( constant('SAMLAUTH_CONF') . '/certs/.htaccess' , 'Deny from all' );
+  	}
+  }
+  
+} // End of Class SamlAuth
 
 $Saml = new SamlAuth();
+
 function show_password_fields($show_password_fields) {
   return false;
 }
@@ -193,31 +240,6 @@ function disable_function() {
 //----------------------------------------------------------------------------
 //    ADMIN OPTION PAGE FUNCTIONS
 //----------------------------------------------------------------------------
-
-$saml_opts = array(
-    'enabled' => false,
-    'config_path' => constant('SAMLAUTH_ROOT') . '/etc',
-		'idp' => '',
-		'nameidpolicy' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
-		'username_attribute' => 'http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname',
-    'firstname_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname',
-    'lastname_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname',
-    'email_attribute' => 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
-    'groups_attribute' => 'http://schemas.xmlsoap.org/claims/Group',
-    'super_admin_group' => '',
-    'admin_group' => '',
-    'editor_group' => '',
-    'author_group' => '',
-    'contributor_group' => '',
-    'subscriber_group' => '',
-    'allow_unlisted_users' => true
-  );
-
-function instantiate()
-{
-	global $Saml;
-	$Saml = new SamlAuth();
-}
 
 function saml_menus()
 {
