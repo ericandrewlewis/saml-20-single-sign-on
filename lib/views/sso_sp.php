@@ -5,7 +5,42 @@
   if (isset($_POST['submit']) ) 
   {    
     
-      if( ( isset($_FILES['certificate']) && isset($_FILES['privatekey']) ) && ( $_FILES['certificate']['error'] == 0 && $_FILES['privatekey']['error'] == 0 ) )
+      if( isset($_POST['auto_cert']) )
+      {
+        $pk = openssl_pkey_new(array('private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA));
+    
+        global $current_user;
+        get_currentuserinfo();
+        
+        $dn = array(
+        "countryName" => "US",
+        "organizationName" => get_bloginfo('name'),
+        "commonName" => get_bloginfo('name') . " SAML Signing Certificate",
+        "emailAddress" => $current_user->user_email
+        );
+        
+        $csr = openssl_csr_new($dn,$pk); 
+        $crt = openssl_csr_sign($csr,null,$pk,1825);
+        
+        $keyfile = null; 
+        $certfile = null;
+        
+        openssl_pkey_export($pk,$keyfile);
+        openssl_x509_export($crt,$certfile);
+        
+        
+        $upload_dir = constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id();
+        
+        if(! is_dir($upload_dir))
+        {
+            mkdir($upload_dir, 0775);
+        }
+                
+        $cert_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.cer', $certfile) ) ? true : false ;
+        $key_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.key', $keyfile) ) ? true : false ;
+        
+      }
+      elseif( ( isset($_FILES['certificate']) && isset($_FILES['privatekey']) ) && ( $_FILES['certificate']['error'] == 0 && $_FILES['privatekey']['error'] == 0 ) )
         {
             $cert = file_get_contents($_FILES['certificate']['tmp_name']);
             $key = file_get_contents($_FILES['privatekey']['tmp_name']);
@@ -51,11 +86,17 @@
 
 ?>
 <div class="wrap">
+
 <?php
+
+    
+    
+    
+
     $idp = parse_ini_file( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',true);
     if($idp === FALSE)
     {
-        echo '<div class="error below-h2"><p>No Identity Providers have been configured. You will not be able to configure SAML for Single Sign-On until this is set up.</p></div>'."\n";
+        echo '<div class="error below-h2"><p>No Identity Providers have been configured. You will not be able to configure WordPress for Single Sign-On until this is set up.</p></div>'."\n";
     }
 ?>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true" enctype="multipart/form-data">
@@ -96,7 +137,13 @@
       <span class="setting-description">Your site will require a NameID in this format, and fail otherwise. Default: emailAddress</span>
     </td>
   </tr>
-  <tr valign="top">
+  <tr>
+    <th scope="row">&nbsp;</th>
+    <td>
+      <input type="checkbox" name="auto_cert" value="auto_cert" onclick="jQuery('.manual_cert').toggle('300');"/>&nbsp;&nbsp;Generate a new certificate and private key for me<br/>
+    </td>
+  </tr>
+  <tr valign="top" class="manual_cert">
     <th scope="row"><label for="certificate">Signing Certificate</label></th> 
     <?php
             if(file_exists(constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.cer') && file_exists(constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.key'))
@@ -114,12 +161,12 @@
             	$privatekey_match = false;
             }
         ?>
-    <td><input type="file" name="certificate" id="certificate" /><?php if($certificate !== false ) {echo '&nbsp;<span class="green">Using certificate for: <strong>' . $certificate_cn . '</strong>.</span>';}?>
+    <td><input type="file" name="certificate" id="certificate" /><?php if($certificate !== false ) {echo '&nbsp;<span class="green">Using certificate: <strong>' . $certificate_cn . '</strong>.</span> <a href="' . constant('SAMLAUTH_CONF_URL') . '/certs/' . get_current_blog_id() . '/' . get_current_blog_id() . '.cer' . '" target="_blank">[download]</a>';}?>
     <br/>
     <span class="setting-description">This doesn't have to be the certificate used to secure your website, it can just be self-signed.</span> 
     </td>
   </tr>
-   <tr valign="top">
+   <tr valign="top" class="manual_cert">
     <th scope="row"><label for="privatekey">Signing Private Key</label></th> 
     <td><input type="file" name="privatekey" id="privatekey" /><?php if($privatekey_match){echo '&nbsp;<span class="green">Your private key matches the certificate.</span>';}?>
     <br/>

@@ -5,8 +5,89 @@
      *  It then presents the user with an interface to modify the IdP details.
      *
      */
+    
+    if ( isset($_POST['fetch_metadata']) )
+    {
+      $c = curl_init($_POST['metadata_url']);
+      curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($c, CURLOPT_HEADER, false);
+      
+      $m = curl_exec($c);
+      $x = xml_parser_create();
+      
+      $d = array();
+      $i = array();
+      
+      if( xml_parse_into_struct($x,$m,$d,$i) )
+      {
+       // echo '<pre>' . print_r($d, true) . '</pre>';
+        $idp_data = array('idp_name' => 'My SSO Provider');
+        
+        if(array_key_exists('ENTITYDESCRIPTOR',$i))
+        {
+          $idp_data['idp_identifier'] = $d[$i['ENTITYDESCRIPTOR'][0]]['attributes']['ENTITYID'];
+        }
+        elseif( array_key_exists('MD:ENTITYDESCRIPTOR',$i) )
+        {
+          $idp_data['idp_identifier'] = $d[$i['MD:ENTITYDESCRIPTOR'][0]]['attributes']['ENTITYID'];
+        }
+        else
+        {
+          $idp_data['idp_identifier'] = '';
+        }
+        
+        if( array_key_exists('SINGLESIGNONSERVICE',$i) )
+        {
+          $idp_data['idp_signon'] = $d[$i['SINGLESIGNONSERVICE'][0]]['attributes']['LOCATION'];
+        }
+        elseif( array_key_exists('MD:SINGLESIGNONSERVICE',$i) )
+        {
+          $idp_data['idp_signon'] = $d[$i['MD:SINGLESIGNONSERVICE'][0]]['attributes']['LOCATION'];
+        }
+        else
+        {
+          $idp_data['idp_signon'] = '';
+        }
+        
+        if( array_key_exists('SINGLELOGOUTSERVICE',$i) )
+        {
+          $idp_data['idp_logout'] = $d[$i['SINGLELOGOUTSERVICE'][0]]['attributes']['LOCATION'];
+        }
+        elseif( array_key_exists('MD:SINGLELOGOUTSERVICE',$i) )
+        {
+          $idp_data['idp_logout'] = $d[$i['MD:SINGLELOGOUTSERVICE'][0]]['attributes']['LOCATION'];
+        }
+        else
+        {
+          $idp_data['idp_logout'] = '';
+        }
+        
+        if ( array_key_exists('DS:X509CERTIFICATE',$i) )
+        {
+          $idp_data['idp_fingerprint'] = sha1( base64_decode( $d[$i['DS:X509CERTIFICATE'][0]]['value'] ) );
+        }
+        elseif ( array_key_exists('X509CERTIFICATE',$i) )
+        {
+          $idp_data['idp_fingerprint'] = sha1( base64_decode( $d[$i['X509CERTIFICATE'][0]]['value'] ) );
+        }
+        else
+        {
+          $idp_data['idp_fingerprint'] = '0000000000000000000000000000000000000000';
+        }
+        
+        $contents =  '[' . $idp_data['idp_identifier'] . ']'."\n";
+        $contents .= '  name = "' . $idp_data['idp_name'] . '"'."\n";
+        $contents .= '  SingleSignOnService = "' . $idp_data['idp_signon'] . '"'."\n";
+        $contents .= '  SingleLogoutService = "' . $idp_data['idp_logout'] . '"'."\n";
+        $contents .= '  certFingerprint = "' . str_replace(':','',$idp_data['idp_fingerprint']) . '"'."\n";
+        
+        $save_status = file_put_contents( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini', $contents );
+        
+      }
+    }
      
-    if (isset($_POST['submit']) ) 
+    elseif (isset($_POST['submit']) ) 
     {
         $old_ini = parse_ini_file(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',true);
         
@@ -36,6 +117,7 @@
     ?>
 <div class="wrap">
     <h2>SAML Identity Provider Settings</h2>
+    <p><strong>Note:</strong> A valid Identity Provider (IdP) must be defined before <?php if( is_multisite()){ echo 'any sites in the network';} else{ echo 'the site';}?> can use Single-Sign On.<?php if( is_multisite()){ echo ' These settings affect all sites in your network.';}?></p>
   <?php 
       // Check some config setttings.
         
@@ -54,9 +136,19 @@
         }
     ?>
   <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+    <h3>Autofill using Metadata</h3>
+    <label for="metadata_url">URL to IdP Metadata </label><input type="text" name="metadata_url" size="40" />
+    <input type="submit" name="fetch_metadata" class="button" value="Fetch Metadata"/>
+  </form><br/>
+  
+  <div class="option-separator"><span class="caption">OR</span></div>
+    
+  <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+  
+    <h3>Enter IdP Info Manually</h3>
     <fieldset class="options">
     
-    <p><strong>Note:</strong> A Valid Identity Provider (IdP) must be declared before <?php if( is_multisite()){ echo 'any sites in the network';} else{ echo 'the site';}?> can use Single-Sign On.<?php if( is_multisite()){ echo ' These settings affect all sites in your network.';}?></p>
+    
     
     <table class="form-table">
         <?php

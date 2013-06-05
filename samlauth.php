@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SAML 2.0 Single Sign-On
-Version: 0.8.7
+Version: 0.8.8
 Plugin URI: http://keithbartholomew.com
 Description: Authenticate users using <a href="http://rnd.feide.no/simplesamlphp">simpleSAMLphp</a>.
 Author: Keith Bartholomew
@@ -10,6 +10,7 @@ Author URI: http://keithbartholomew.com
 
 $upload_dir = wp_upload_dir();
 define('SAMLAUTH_CONF', $upload_dir['basedir'] . '/saml-20-single-sign-on/etc');
+define('SAMLAUTH_CONF_URL', $upload_dir['baseurl'] . '/saml-20-single-sign-on/etc');
 define('SAMLAUTH_ROOT',dirname(__FILE__));
 define('SAMLAUTH_URL',plugins_url() . '/' . basename( dirname(__FILE__) ) );
 
@@ -211,23 +212,15 @@ class SamlAuth
   		file_put_contents(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',"[https://your-idp.net]\nname = Your IdP\nSingleSignOnService = https://your-idp.net/SSOService\nSingleLogoutService = https://your-idp.net/SingleLogoutService\ncertFingerprint = 0000000000000000000000000000000000000000");
   	}
   	
-  	if(! file_exists( constant('SAMLAUTH_CONF') . '/certs/.htaccess' ) )
+  	if(! file_exists( constant('SAMLAUTH_CONF') . '/certs/.htaccess' ) || md5_file( constant('SAMLAUTH_CONF') . '/certs/.htaccess' ) != '9f6dc1ce87ca80bc859b47780447f1a6')
   	{
-  		file_put_contents( constant('SAMLAUTH_CONF') . '/certs/.htaccess' , 'Deny from all' );
+  		file_put_contents( constant('SAMLAUTH_CONF') . '/certs/.htaccess' , "<Files ~ \"\\.(key)$\">\nDeny from all\n</Files>" );
   	}
   }
   
 } // End of Class SamlAuth
 
 $Saml = new SamlAuth();
-
-function show_password_fields($show_password_fields) {
-  return false;
-}
-
-function disable_function() {
-  die('Disabled');
-}
 
 // WordPress action hooks
 	add_action('lost_password', 'disable_function');
@@ -240,6 +233,14 @@ function disable_function() {
 //----------------------------------------------------------------------------
 //    ADMIN OPTION PAGE FUNCTIONS
 //----------------------------------------------------------------------------
+
+function show_password_fields($show_password_fields) {
+  return false;
+}
+
+function disable_function() {
+  die('Disabled');
+}
 
 function saml_menus()
 {
