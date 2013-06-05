@@ -36,6 +36,10 @@ This is not currently possible. You should make sure that all necessary administ
 
 == Changelog ==
 
+= 0.8.8 =
+* IdP info can now be automatically loaded from a metadata URL
+* Signing certificate can be automatically generated if you don't know how (or don't want to do it yourself). The generated certificate can be downloaded so you can share it with your IdP
+
 = 0.8.7 =
 * Uploading a certificate and private key is now optional, which makes IdP-initiated testing much simpler.
 * Folders and config files are created if they don't already exist, which fixes many issues with various screens being blank.
