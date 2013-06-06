@@ -3,6 +3,7 @@ $tab = $_GET['page'];
 $is_multisite = is_multisite();
 ?>
 <link rel="stylesheet" href="<?php echo constant('SAMLAUTH_URL') . '/lib/css/sso.css';?>" />
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
 <div class="wrap">
   <div id="icon-options-general" class="icon32"></div>
   <h2 class="nav-tab-wrapper">

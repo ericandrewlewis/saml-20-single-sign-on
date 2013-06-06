@@ -18,7 +18,7 @@
 	<li>If the IdP determines that the user has logged in correctly, it redirects them <em>back</em> to your website, this time with a <strong>SAML Assertion</strong> that provides some information about the user and tells the SP how long the user's login is valid for.</li>
 	<li>Using the information from the IdP, this plugin determines which permissions the user should have and logs them in to WordPress accordingly.</li>
 </ol>
-<h4>IdP-initiated Login (more straightforward)</h4>
+<h4><a name="idp-first-flow"></a>IdP-initiated Login (more straightforward)</h4>
 <ol>
 	<li>The user arrives at the IdP website and provides the IdP with their login information (usually username/password). The user must also indicate to the IdP which SP they want to log in to. (One IdP typically serves many SP's)</li>
 	<li>If the IdP determines that the user has logged in correctly, it redirects them <em>back</em> to your website, this time with a <strong>SAML Assertion</strong> that provides some information about the user and tells the SP how long the user's login is valid for.</li>

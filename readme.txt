@@ -2,8 +2,8 @@
 Contributors: ktbartholomew
 Tags: sso, saml, single sign-on, simplesamlphp, onelogin, ssocircle
 Requires at least: 3.3
-Tested up to: 3.5.1
-Stable tag: 0.8.8
+Tested up to: 3.6
+Stable tag: 0.8.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,9 +36,14 @@ This is not currently possible. You should make sure that all necessary administ
 
 == Changelog ==
 
+= 0.8.9 =
+* Status check lets you know when everything appears to be configured correctly.
+* Fixed an issue that prevented users from logging out if a Single Logout service was not specified.
+* Fixed an issue that caused SP settings to get out of sync when importing IdP settings from metadata.
+
 = 0.8.8 =
-* IdP info can now be automatically loaded from a metadata URL
-* Signing certificate can be automatically generated if you don't know how (or don't want to do it yourself). The generated certificate can be downloaded so you can share it with your IdP
+* IdP info can now be automatically loaded from a metadata URL.
+* Signing certificate can be automatically generated if you don't know how (or don't want to do it yourself). The generated certificate can be downloaded so you can share it with your IdP.
 
 
 = 0.8.7 =

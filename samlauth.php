@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SAML 2.0 Single Sign-On
-Version: 0.8.8
+Version: 0.8.9
 Plugin URI: http://keithbartholomew.com
 Description: Authenticate users using <a href="http://rnd.feide.no/simplesamlphp">simpleSAMLphp</a>.
 Author: Keith Bartholomew
@@ -53,7 +53,7 @@ class SamlAuth
 				$this->saml = new SimpleSAML_Auth_Simple((string)get_current_blog_id());
 				
 				add_action('wp_authenticate',array($this,'authenticate'));
-		      	add_action('wp_logout',array($this,'logout'));
+		    add_action('wp_logout',array($this,'logout'));
 			}
     }
     
@@ -70,7 +70,14 @@ class SamlAuth
   
   public function authenticate()
   {
-    $this->saml->requireAuth( array('ReturnTo' => get_admin_url() ) );
+    if( isset($_GET['loggedout']) && $_GET['loggedout'] == 'true' )
+    {
+      header('Location: ' . get_option('siteurl'));
+      exit();
+    }
+    else
+    {
+      $this->saml->requireAuth( array('ReturnTo' => get_admin_url() ) );
       $attrs = $this->saml->getAttributes();
       $username = $attrs[$this->opt['username_attribute']][0];
       if(get_user_by('login',$username))
@@ -81,11 +88,14 @@ class SamlAuth
       {
         $this->new_user($attrs);
       }
+    }
   }
   
   public function logout()
-  {
-    $this->saml->logout(wp_logout_url( get_settings('siteurl') ));
+  { 
+    //header('Location: ' . $this->saml->getLogoutURL( get_option('siteurl') ));
+    $this->saml->logout( get_option('siteurl') );
+    // exit();
   }
   
   private function new_user($attrs)
