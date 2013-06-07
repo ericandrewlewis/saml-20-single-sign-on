@@ -1,3 +1,37 @@
+
+/* Colors */
 .setting-description {color: #999;}
+.blue {color: #21759b;}
 .green {color: #093;}
+.yellow {color: #c09853;}
+.red {color: #b94a48;}
+
 .metadata-box {border: 1px dashed #ccc; background: #eee;overflow-x:auto;}
+.help-contents {border: solix 1px #ccc; background: #eee;margin: 1em;padding:1em;float:left;}
+.helpList ol, .helpList ul {margin-left: 1em;}
+
+.option-separator {
+  width: 100%;
+  color: #CCC;
+  border-top: solid 1px #CCC;
+  margin: 1em auto;
+  text-align: center;
+}
+
+.option-separator .caption {
+  background: #FFF;
+  position: relative;
+  top: -1em;
+  padding: 0 1em;
+  line-height: 2;
+}
+
+table.saml_status {
+  background: #FFF;
+  border-collapse: collapse;
+}
+
+table.saml_status tr td {
+  border: solid 1px #DADADA;
+  padding: 0.5em;
+}
