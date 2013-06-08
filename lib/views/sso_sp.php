@@ -1,98 +1,6 @@
-<?php
-  // Setup Default Options Array
-  global $saml_opts;
-  
-  if (isset($_POST['submit']) ) 
-  {    
-    
-      if( isset($_POST['auto_cert']) )
-      {
-        $pk = openssl_pkey_new(array('private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA));
-    
-        global $current_user;
-        get_currentuserinfo();
-        
-        $dn = array(
-        "countryName" => "US",
-        "organizationName" => get_bloginfo('name'),
-        "commonName" => get_bloginfo('name') . " SAML Signing Certificate",
-        "emailAddress" => $current_user->user_email
-        );
-        
-        $csr = openssl_csr_new($dn,$pk); 
-        $crt = openssl_csr_sign($csr,null,$pk,1825);
-        
-        $keyfile = null; 
-        $certfile = null;
-        
-        openssl_pkey_export($pk,$keyfile);
-        openssl_x509_export($crt,$certfile);
-        
-        
-        $upload_dir = constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id();
-        
-        if(! is_dir($upload_dir))
-        {
-            mkdir($upload_dir, 0775);
-        }
-                
-        $cert_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.cer', $certfile) ) ? true : false ;
-        $key_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.key', $keyfile) ) ? true : false ;
-        
-      }
-      elseif( ( isset($_FILES['certificate']) && isset($_FILES['privatekey']) ) && ( $_FILES['certificate']['error'] == 0 && $_FILES['privatekey']['error'] == 0 ) )
-        {
-            $cert = file_get_contents($_FILES['certificate']['tmp_name']);
-            $key = file_get_contents($_FILES['privatekey']['tmp_name']);
-            if(openssl_x509_check_private_key($cert,$key))
-            {
-                $upload_dir = constant('SAMLAUTH_CONF') . '/certs/' . get_current_blog_id();
-                if(! is_dir($upload_dir))
-                {
-                    mkdir($upload_dir, 0775);
-                }
-                $cert_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.cer', $cert) ) ? true : false ;
-                $key_uploaded = ( file_put_contents($upload_dir . '/' . get_current_blog_id() . '.key', $key) ) ? true : false ;
-            }
-            else
-            {
-                echo '<div class="error below-h2"><p>The certificate and private key you provided do not correspond to one another. They were not uploaded.</p></div>'."\n";
-            }
-        }
-        if(get_option('saml_authentication_options'))
-        $saml_opts = get_option('saml_authentication_options');
-
-        // Options Array Update
-        $saml_opts['idp'] = $_POST['idp'];
-        $saml_opts['nameidpolicy'] = $_POST['nameidpolicy'];
-        $saml_opts['username_attribute'] = $_POST['username_attribute'];
-        $saml_opts['firstname_attribute'] = $_POST['firstname_attribute'];
-        $saml_opts['lastname_attribute'] = $_POST['lastname_attribute'];
-        $saml_opts['email_attribute'] = $_POST['email_attribute'];
-        $saml_opts['groups_attribute'] = $_POST['groups_attribute'];
-        $saml_opts['admin_group'] = $_POST['admin_group'];
-        $saml_opts['editor_group'] = $_POST['editor_group'];
-        $saml_opts['author_group'] = $_POST['author_group'];
-        $saml_opts['contributor_group'] = $_POST['contributor_group'];
-        $saml_opts['subscriber_group'] = $_POST['subscriber_group'];
-        $saml_opts['allow_unlisted_users'] = ($_POST['allow_unlisted_users'] == 'allow') ? true : false;
-
-         update_option('saml_authentication_options', $saml_opts);
-  }
-  
-  // Get Options
-  if(get_option('saml_authentication_options'))
-        $saml_opts = get_option('saml_authentication_options');
-
-?>
 <div class="wrap">
 
 <?php
-
-    
-    
-    
-
     $idp = parse_ini_file( constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini',true);
     if($idp === FALSE)
     {
@@ -106,6 +14,10 @@
 
 <h3>Authentication</h3>
 <table class="form-table">
+<?php 
+/************************************************
+* With only one IdP, this field is not needed.
+************************************************
   <tr valign="top">
     <th scope="row"><label for="idp">Identity Provider</label></th> 
     <td>
@@ -117,22 +29,24 @@
     </select>
     </td>
   </tr>
+  <?php */ ?>
+  <input type="hidden" name="idp" id="idp" value="<?php echo array_keys($idp)[0] ?>" />
   <tr valign="top">
     <th scope="row"><label for="nameidpolicy">NameID Policy: </label></th> 
     <td>
         <select name="nameidpolicy">
       <?php
-                $policies = array(
-                  'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
-                    'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
-                    'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
-                );
-                foreach($policies as $policy)
-                {
-                    $selected = ( $saml_opts['nameidpolicy'] == $policy ) ? ' selected="selected"' : '';
-                    echo '<option value="' . $policy . '"' . $selected . '>' . $policy . '</option>'."\n";
-                }
-            ?>
+          $policies = array(
+            'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+            'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+            'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
+          );
+          foreach($policies as $policy)
+          {
+            $selected = ( $saml_opts['nameidpolicy'] == $policy ) ? ' selected="selected"' : '';
+            echo '<option value="' . $policy . '"' . $selected . '>' . $policy . '</option>'."\n";
+          }
+      ?>
       </select><br/>
       <span class="setting-description">Your site will require a NameID in this format, and fail otherwise. Default: emailAddress</span>
     </td>
@@ -177,36 +91,41 @@
 <h3>Authorization</h3>
 <table class="form-table">
   <tr valign="top">
+    <th scope="row">
+      <strong>Autofill with defaults for:</strong>
+    </th>
+    <td>
+      <a href="#" onclick="idpDefaults('adfs'); return false;" style="margin-right:2em;">ADFS 2.0</a>
+      <a href="#" onclick="idpDefaults('onelogin'); return false;" style="margin-right:2em;">OneLogin</a>
+      <a href="#" onclick="idpDefaults('simplesamlphp'); return false;" >SimpleSAMLPHP w/ Active Directory</a>
+    </td>
+  </tr>
+  <tr valign="top">
     <th scope="row"><label for="username_attribute">Attribute to be used as username</label></th> 
-    <td><input type="text" name="username_attribute" id="username_attribute_inp" value="<?php echo $saml_opts['username_attribute']; ?>" size="40" /><br/>
-    <span class="setting-description">Default is "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname".</span> 
+    <td><input type="text" name="username_attribute" id="username_attribute_inp" value="<?php echo $saml_opts['username_attribute']; ?>" size="40" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="firstname_attribute">Attribute to be used as First Name</label></th> 
-    <td><input type="text" name="firstname_attribute" id="firstname_attribute_inp" value="<?php echo $saml_opts['firstname_attribute']; ?>" size="40" /><br/>
-    <span class="setting-description">Default is "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname".</span> 
+    <td><input type="text" name="firstname_attribute" id="firstname_attribute_inp" value="<?php echo $saml_opts['firstname_attribute']; ?>" size="40" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="lastname_attribute">Attribute to be used as Last Name</label></th> 
-    <td><input type="text" name="lastname_attribute" id="lastname_attribute_inp" value="<?php echo $saml_opts['lastname_attribute']; ?>" size="40" /><br/>
-    <span class="setting-description">Default is "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname".</span> 
+    <td><input type="text" name="lastname_attribute" id="lastname_attribute_inp" value="<?php echo $saml_opts['lastname_attribute']; ?>" size="40" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="email_attribute">Attribute to be used as E-mail</label></th> 
-    <td><input type="text" name="email_attribute" id="email_attribute_inp" value="<?php echo $saml_opts['email_attribute']; ?>" size="40" /><br/>
-    <span class="setting-description">Default is "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress".</span> 
+    <td><input type="text" name="email_attribute" id="email_attribute_inp" value="<?php echo $saml_opts['email_attribute']; ?>" size="40" />
     </td>
   </tr>
   <tr valign="top">
     <th scope="row"><label for="groups_attribute">Attribute to be used as Groups</label></th> 
-    <td><input type="text" name="groups_attribute" id="groups_attribute_inp" value="<?php echo $saml_opts['groups_attribute']; ?>" size="40" /><br/>
-    <span class="setting-description">Default is "http://schemas.xmlsoap.org/claims/Group".</span> 
+    <td><input type="text" name="groups_attribute" id="groups_attribute_inp" value="<?php echo $saml_opts['groups_attribute']; ?>" size="40" />
     </td>
   </tr>
   </table>
@@ -256,3 +175,46 @@
 </div>
 </form>
 </div>
+<script type="text/javascript">
+  function idpDefaults(idp)
+  {
+    var $ = jQuery;
+    
+    if( typeof idp === 'undefined' )
+    {
+      return false;
+    }
+    else if(idp == 'adfs')
+    {
+      $('#username_attribute_inp').val('http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname');
+      $('#firstname_attribute_inp').val('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname');
+      $('#lastname_attribute_inp').val('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname');
+      $('#email_attribute_inp').val('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress');
+      $('#groups_attribute_inp').val('http://schemas.xmlsoap.org/claims/Group');
+      return true;
+    }
+    else if(idp == 'onelogin')
+    {
+      $('#username_attribute_inp').val('User.Username');
+      $('#firstname_attribute_inp').val('User.FirstName');
+      $('#lastname_attribute_inp').val('User.LastName');
+      $('#email_attribute_inp').val('User.email');
+      $('#groups_attribute_inp').val('memberOf');
+      return true;
+    }
+    else if(idp == 'simplesamlphp')
+    {
+      $('#username_attribute_inp').val('sAMAccountName');
+      $('#firstname_attribute_inp').val('givenName');
+      $('#lastname_attribute_inp').val('sn');
+      $('#email_attribute_inp').val('email');
+      $('#groups_attribute_inp').val('memberOf');
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+</script>
+
