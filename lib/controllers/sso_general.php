@@ -1,9 +1,8 @@
 <?php
-  // Setup Default Options Array
   global $saml_opts;
-  $status = get_saml_status();
+  $status = $this->get_saml_status();
   
-  if (isset($_POST['submit']) ) 
+  if (isset($_POST['submit']) &&  wp_verify_nonce($_POST['_wpnonce'],'sso_general') ) 
   { 
     if(get_option('saml_authentication_options'))
     		$saml_opts = get_option('saml_authentication_options');
@@ -31,6 +30,22 @@
   if(get_option('saml_authentication_options'))
   {
 		$saml_opts = get_option('saml_authentication_options');
+	}
+	
+	  
+	$response = wp_remote_get(constant('SAMLAUTH_URL') . '/saml/www/module.php/saml/sp/metadata.php/' . get_current_blog_id() , array('sslverify' => false) );
+	
+	if(array_key_exists('body',$response))
+	{
+	  $o = $response['body'];
+	  
+	  preg_match('/(entityID="(?P<entityID>.*)")/',$o,$entityID);
+		preg_match('/(<md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="(?P<Logout>.*)")/',$o,$Logout);
+		preg_match('/(<md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="(?P<Consumer>.*)" index)/',$o,$Consumer);
+		
+		$metadata['entityID'] = $entityID['entityID'];
+		$metadata['Logout'] = $Logout['Logout'];
+		$metadata['Consumer'] = $Consumer['Consumer'];
 	}
 
   include(constant('SAMLAUTH_ROOT') . '/lib/views/nav_tabs.php');

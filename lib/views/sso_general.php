@@ -8,20 +8,7 @@
 
 <h3>Your SAML Info</h3>
 <p>You will need to supply your identity provider with this information. If you want your users to be able to log in directly from WordPress (as opposed to logging in from a separate SSO portal), then you will also need to supply your IdP with the <strong>signing certificate</strong> used on the <a href="?page=sso_sp.php">Service Provider tab</a>.</p>
-  <?php
-	  $c = curl_init(constant('SAMLAUTH_URL') . '/saml/www/module.php/saml/sp/metadata.php/' . get_current_blog_id());
-		curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
-		$o = curl_exec($c);
-		
-  	preg_match('/(entityID="(?P<entityID>.*)")/',$o,$entityID);
-		preg_match('/(<md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="(?P<Logout>.*)")/',$o,$Logout);
-		preg_match('/(<md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="(?P<Consumer>.*)" index)/',$o,$Consumer);
-		
-		$metadata['entityID'] = $entityID['entityID'];
-		$metadata['Logout'] = $Logout['Logout'];
-		$metadata['Consumer'] = $Consumer['Consumer'];
-	?>
+
   <p>
     <strong>Your Entity ID:</strong><br/>
     <pre class="metadata-box">
@@ -44,6 +31,7 @@
   <div class="option-separator"></div>
 
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+<?php wp_nonce_field('sso_general'); ?>
 <table class="form-table">
 	<tr valign="top">
     <th scope="row"><label for="enabled"><strong>Enable SAML authentication</strong></label></th> 

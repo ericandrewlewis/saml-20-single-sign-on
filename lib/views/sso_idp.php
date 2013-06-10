@@ -19,6 +19,7 @@
         }
     ?>
   <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+    <?php wp_nonce_field('sso_idp_metadata'); ?>
     <h3>Autofill using Metadata</h3>
     <label for="metadata_url">URL to IdP Metadata </label><input type="text" name="metadata_url" size="40" />
     <input type="submit" name="fetch_metadata" class="button" value="Fetch Metadata"/>
@@ -27,7 +28,7 @@
   <div class="option-separator"><span class="caption">OR</span></div>
     
   <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
-  
+  <?php wp_nonce_field('sso_idp_manual'); ?>
     <h3>Enter IdP Info Manually</h3>
     <fieldset class="options">
     

@@ -8,6 +8,7 @@
     }
 ?>
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true" enctype="multipart/form-data">
+<?php wp_nonce_field('sso_sp'); ?>
 <input type="hidden" name="MAX_FILE_SIZE" value="4194304" /> 
 <fieldset class="options">
 
@@ -23,14 +24,14 @@
     <td>
     <select name="idp" id="idp">
       <?php foreach($idp as $key => $array) {
-            $selected = ($key == $saml_opts['idp']) ? ' selected="selected"' : '';
+            $selected = ($key == $this->settings->get_idp()) ? ' selected="selected"' : '';
         echo '<option value="' . $key . '"' . $selected . '>' . $array['name'] . '</option>'."\n";
       } ?>
     </select>
     </td>
   </tr>
   <?php */ ?>
-  <input type="hidden" name="idp" id="idp" value="<?php echo array_keys($idp)[0] ?>" />
+  <input type="hidden" name="idp" id="idp" value="<?php echo $this->settings->get_idp(); ?>" />
   <tr valign="top">
     <th scope="row"><label for="nameidpolicy">NameID Policy: </label></th> 
     <td>
@@ -43,7 +44,7 @@
           );
           foreach($policies as $policy)
           {
-            $selected = ( $saml_opts['nameidpolicy'] == $policy ) ? ' selected="selected"' : '';
+            $selected = ( $this->settings->get_nameidpolicy() == $policy ) ? ' selected="selected"' : '';
             echo '<option value="' . $policy . '"' . $selected . '>' . $policy . '</option>'."\n";
           }
       ?>
@@ -102,30 +103,30 @@
   </tr>
   <tr valign="top">
     <th scope="row"><label for="username_attribute">Attribute to be used as username</label></th> 
-    <td><input type="text" name="username_attribute" id="username_attribute_inp" value="<?php echo $saml_opts['username_attribute']; ?>" size="40" />
+    <td><input type="text" name="username_attribute" id="username_attribute_inp" value="<?php echo $this->settings->get_attribute('username'); ?>" size="40" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="firstname_attribute">Attribute to be used as First Name</label></th> 
-    <td><input type="text" name="firstname_attribute" id="firstname_attribute_inp" value="<?php echo $saml_opts['firstname_attribute']; ?>" size="40" />
+    <td><input type="text" name="firstname_attribute" id="firstname_attribute_inp" value="<?php echo $this->settings->get_attribute('firstname'); ?>" size="40" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="lastname_attribute">Attribute to be used as Last Name</label></th> 
-    <td><input type="text" name="lastname_attribute" id="lastname_attribute_inp" value="<?php echo $saml_opts['lastname_attribute']; ?>" size="40" />
+    <td><input type="text" name="lastname_attribute" id="lastname_attribute_inp" value="<?php echo $this->settings->get_attribute('lastname'); ?>" size="40" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="email_attribute">Attribute to be used as E-mail</label></th> 
-    <td><input type="text" name="email_attribute" id="email_attribute_inp" value="<?php echo $saml_opts['email_attribute']; ?>" size="40" />
+    <td><input type="text" name="email_attribute" id="email_attribute_inp" value="<?php echo $this->settings->get_attribute('email'); ?>" size="40" />
     </td>
   </tr>
   <tr valign="top">
     <th scope="row"><label for="groups_attribute">Attribute to be used as Groups</label></th> 
-    <td><input type="text" name="groups_attribute" id="groups_attribute_inp" value="<?php echo $saml_opts['groups_attribute']; ?>" size="40" />
+    <td><input type="text" name="groups_attribute" id="groups_attribute_inp" value="<?php echo $this->settings->get_attribute('groups'); ?>" size="40" />
     </td>
   </tr>
   </table>
@@ -134,37 +135,37 @@
   <table class="form-table">
   <tr>
     <th><label for="admin_entitlement">Administrators Group Name</label></th>
-    <td><input type="text" name="admin_group" id="admin_group" value="<?php echo $saml_opts['admin_group']; ?>" size="40" /><br/>
+    <td><input type="text" name="admin_group" id="admin_group" value="<?php echo $this->settings->get_group('admin'); ?>" size="40" /><br/>
     <span class="setting-description">Users in this group will be assigned the role of &ldquo;Administrator&rdquo;</span>
     </td>
   </tr>
   <tr>
     <th scope="row"><label for="editor_group">Editors Group Name</label></th>
-    <td><input type="text" name="editor_group" id="editor_group" value="<?php echo $saml_opts['editor_group']; ?>" size="40" /><br/>
+    <td><input type="text" name="editor_group" id="editor_group" value="<?php echo $this->settings->get_group('editor'); ?>" size="40" /><br/>
     <span class="setting-description">Users in this group will be assigned the role of &ldquo;Editor&rdquo;</span>
     </td>
   </tr>
   <tr>
     <th scope="row"><label for="editor_group">Authors Group Name</label></th>
-    <td><input type="text" name="author_group" id="author_group" value="<?php echo $saml_opts['author_group']; ?>" size="40" /><br/>
+    <td><input type="text" name="author_group" id="author_group" value="<?php echo $this->settings->get_group('author'); ?>" size="40" /><br/>
     <span class="setting-description">Users in this group will be assigned the role of &ldquo;Author&rdquo;</span>
     </td>
   </tr>
   <tr>
     <th><label for="editor_group">Contributors Group Name</label></th>
-    <td><input type="text" name="contributor_group" id="contributor_group" value="<?php echo $saml_opts['contributor_group']; ?>" size="40" /><br/>
+    <td><input type="text" name="contributor_group" id="contributor_group" value="<?php echo $this->settings->get_group('contributor'); ?>" size="40" /><br/>
     <span class="setting-description">Users in this group will be assigned the role of &ldquo;Contributor&rdquo;</span>
     </td>
   </tr>
   <tr>
     <th><label for="editor_group">Subscribers Group Name</label></th>
-    <td><input type="text" name="subscriber_group" id="subscriber_group" value="<?php echo $saml_opts['subscriber_group']; ?>" size="40" /><br/>
+    <td><input type="text" name="subscriber_group" id="subscriber_group" value="<?php echo $this->settings->get_group('subscriber'); ?>" size="40" /><br/>
     <span class="setting-description">Users in this group will be assigned the role of &ldquo;Subscriber&rdquo;</span>
     </td>
   </tr>
   <tr>
     <th><label for="allow_unlisted_users">Allow Unlisted Users</label></th>
-    <td><input type="checkbox" name="allow_unlisted_users" id="allow_unlisted_users" value="allow" <?php echo ($saml_opts['allow_unlisted_users']) ? 'checked="checked"' : ''; ?> /><br/>
+    <td><input type="checkbox" name="allow_unlisted_users" id="allow_unlisted_users" value="allow" <?php echo ($this->settings->get_allow_unlisted_users()) ? 'checked="checked"' : ''; ?> /><br/>
     <span class="setting-description">Users in this group will be assigned the role of &ldquo;Subscriber&rdquo;</span>
     </td>
   </tr>
