@@ -3,7 +3,7 @@ Contributors: ktbartholomew
 Tags: sso, saml, single sign-on, simplesamlphp, onelogin, ssocircle
 Requires at least: 3.3
 Tested up to: 3.6
-Stable tag: 0.8.9
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,11 @@ You may have noticed the fields that ask you to upload an SSL certificate and pr
 This is not currently possible. You should make sure that all necessary administrators have SSO-ready user accounts before enabling the plugin.
 
 == Changelog ==
+
+= 0.9.0 =
+* Added nonces and basic type-checking to admin pages for improved security.
+* Quick access to common attributes used by popular IdP's including ADFS, OneLogin, and SimpleSAMLPHP
+* Extensive internal code improvements to improve maintainability
 
 = 0.8.9 =
 * Status check lets you know when everything appears to be configured correctly.
