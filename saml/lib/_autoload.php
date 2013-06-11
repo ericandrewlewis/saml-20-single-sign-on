@@ -10,6 +10,11 @@
  */
 
 
+/** Loads the WordPress Environment and Template */
+
+//define('WP_USE_THEMES', false);
+//require($_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
+
 /**
  * Autoload function for simpleSAMLphp.
  *
