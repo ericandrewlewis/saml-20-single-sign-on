@@ -28,6 +28,11 @@ class SAML_Client
     $this->secretsauce = constant('AUTH_KEY');
   }
   
+  /**
+   *  Authenticates the user using SAML
+   *
+   *  @return void
+   */
   public function authenticate()
   {
     if( isset($_GET['loggedout']) && $_GET['loggedout'] == 'true' )
@@ -39,36 +44,59 @@ class SAML_Client
     {
       $this->saml->requireAuth( array('ReturnTo' => get_admin_url() ) );
       $attrs = $this->saml->getAttributes();
-      $username = $attrs[$this->settings->get_attribute('username')][0];
-      if(get_user_by('login',$username))
+      if(array_key_exists($this->settings->get_attribute('username'), $attrs) )
       {
-        $this->simulate_signon($username);
+        $username = $attrs[$this->settings->get_attribute('username')][0];
+        if(get_user_by('login',$username))
+        {
+          $this->simulate_signon($username);
+        }
+        else
+        {
+          $this->new_user($attrs);
+        }
       }
       else
       {
-        $this->new_user($attrs);
-      }
+        die('A username was not provided.');
+      }  
     }
   }
   
+  /**
+   * Sends the user to the SAML Logout URL (using SLO if available) and then redirects to the site homepage
+   *
+   * @return void
+   */
   public function logout()
   { 
-    //header('Location: ' . $this->saml->getLogoutURL( get_option('siteurl') ));
     $this->saml->logout( get_option('siteurl') );
-    // exit();
   }
   
+  /**
+   * Creates a new user in the WordPress database using attributes from the IdP
+   * 
+   * @param array $attrs The array of attributes created by SimpleSAMLPHP
+   * @return void
+   */
   private function new_user($attrs)
   {
-    $login = $attrs[$this->settings->get_attribute('username')][0];
-    $email = $attrs[$this->settings->get_attribute('email')][0];
-    $first_name = $attrs[$this->settings->get_attribute('firstname')][0];
-    $last_name = $attrs[$this->settings->get_attribute('lastname')][0];
-    $display_name = $first_name . ' ' . $last_name;
+    if( array_key_exists($this->settings->get_attribute('username'),$attrs) )
+    {
+      $login = (array_key_exists($this->settings->get_attribute('username'),$attrs)) ? $attrs[$this->settings->get_attribute('username')][0] : 'NULL';
+      $email = (array_key_exists($this->settings->get_attribute('email'),$attrs)) ? $attrs[$this->settings->get_attribute('email')][0] : '';
+      $first_name = (array_key_exists($this->settings->get_attribute('firstname'),$attrs)) ? $attrs[$this->settings->get_attribute('firstname')][0] : '';
+      $last_name = (array_key_exists($this->settings->get_attribute('lastname'),$attrs)) ? $attrs[$this->settings->get_attribute('lastname')][0] : '';
+      $display_name = $first_name . ' ' . $last_name;
+    }
+    else
+    {
+      die('A username was not provided.');
+    }
     
     $role = $this->update_role();
     
-    if( $role !== FALSE )
+    if( $role !== false )
     {
       $user_opts = array(
         'user_login' => $login ,
@@ -88,6 +116,12 @@ class SAML_Client
     }
   }
   
+  /**
+   * Authenticates the user with WordPress using wp_signon()
+   *
+   * @param string $username The user to log in as.
+   * @return void
+   */
   private function simulate_signon($username)
   {
     remove_filter('wp_authenticate',array($this,'authenticate'));
@@ -100,7 +134,8 @@ class SAML_Client
       'remember' => false
     );
     
-    $result = wp_signon($login,true);
+    $use_ssl = ( defined('FORCE_SSL_LOGIN') && constant('FORCE_SSL_LOGIN') === true ) ? true : '';
+    $result = wp_signon($login,$use_ssl);
     if(is_wp_error($result))
     {
       echo $result->get_error_message();
@@ -113,39 +148,51 @@ class SAML_Client
     }
   }
   
+  /**
+   * Updates a user's role if their current one doesn't match the attributes provided by the IdP
+   *
+   * @return string 
+   */
   private function update_role()
   {
     $attrs = $this->saml->getAttributes();
-    if( in_array($this->settings->get_group('admin'),$attrs[$this->settings->get_attribute('groups')]) )
+    if(array_key_exists($this->settings->get_attribute('groups'), $attrs) )
     {
-      $role = 'administrator';
-    }
-    elseif( in_array($this->settings->get_group('editor'),$attrs[$this->settings->get_attribute('groups')]) )
-    {
-      $role = 'editor';
-    }
-    elseif( in_array($this->settings->get_group('author'),$attrs[$this->settings->get_attribute('groups')]) )
-    {
-      $role = 'author';
-    }
-    elseif( in_array($this->settings->get_group('contributor'),$attrs[$this->settings->get_attribute('groups')]) )
-    {
-      $role = 'contributor';
-    }
-    elseif( in_array($this->settings->get_group('subscriber'),$attrs[$this->settings->get_attribute('groups')]) )
-    {
-      $role = 'subscriber';
-    }
-    elseif( $this->settings->get_allow_unlisted_users() )
-    {
-      $role = 'subscriber';
+      if( in_array($this->settings->get_group('admin'),$attrs[$this->settings->get_attribute('groups')]) )
+      {
+        $role = 'administrator';
+      }
+      elseif( in_array($this->settings->get_group('editor'),$attrs[$this->settings->get_attribute('groups')]) )
+      {
+        $role = 'editor';
+      }
+      elseif( in_array($this->settings->get_group('author'),$attrs[$this->settings->get_attribute('groups')]) )
+      {
+        $role = 'author';
+      }
+      elseif( in_array($this->settings->get_group('contributor'),$attrs[$this->settings->get_attribute('groups')]) )
+      {
+        $role = 'contributor';
+      }
+      elseif( in_array($this->settings->get_group('subscriber'),$attrs[$this->settings->get_attribute('groups')]) )
+      {
+        $role = 'subscriber';
+      }
+      elseif( $this->settings->get_allow_unlisted_users() )
+      {
+        $role = 'subscriber';
+      }
+      else
+      {
+        $role = false;
+      }
     }
     else
     {
-      $role = FALSE;
+      $role = false;
     }
     
-    $user = get_user_by('login',$attrs[$this->settings->get_attribute('username')]);
+    $user = get_user_by('login',$attrs[$this->settings->get_attribute('username')][0]);
     if($user)
     {
       $user->set_role($role);
@@ -154,6 +201,13 @@ class SAML_Client
     return $role;
   }
   
+  /**
+   * Generates a SHA-256 HMAC hash using the username and secret key
+   * 
+   * @param string $value the user's username
+   * @param string $key a secret key
+   * @return string 
+   */
   private function user_password($value,$key)
   {
     $hash = hash_hmac('sha256',$value,$key);
