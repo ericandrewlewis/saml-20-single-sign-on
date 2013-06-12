@@ -134,7 +134,7 @@ class SAML_Client
       'remember' => false
     );
     
-    $use_ssl = ( defined('FORCE_SSL_LOGIN') && constant('FORCE_SSL_LOGIN') === true ) ? true : '';
+    $use_ssl = ( defined('FORCE_SSL_ADMIN') && constant('FORCE_SSL_ADMIN') === true ) ? true : '';
     $result = wp_signon($login,$use_ssl);
     if(is_wp_error($result))
     {
