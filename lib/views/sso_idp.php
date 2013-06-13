@@ -1,52 +1,43 @@
-<?php
-	/*  IdP Options
-	 *
-	 *  This function reads the IdP configuration file used by SimpleSAMLPHP and parses the configured IdPs.
-	 *  It then presents the user with an interface to modify the IdP details.
-	 *
-	 */
-	 
-	 if (isset($_POST['submit']) ) 
-  {
-		$contents =  '[' . $_POST['idp_identifier'] . ']'."\n";
-		$contents .= '  name = "' . $_POST['idp_name'] . '"'."\n";
-		$contents .= '  SingleSignOnService = "' . $_POST['idp_signon'] . '"'."\n";
-		$contents .= '  SingleLogoutService = "' . $_POST['idp_logout'] . '"'."\n";
-		$contents .= '  certFingerprint = "' . str_replace(':','',$_POST['idp_fingerprint']) . '"'."\n";
-
-		$save_status = file_put_contents( constant('SAMLAUTH_ROOT') . '/etc/config/saml20-idp-remote.ini', $contents ); 
-	}
-	
-	  $metadata = array(); // the variable used in the idp file.
-	  require( constant('SAMLAUTH_ROOT') . '/saml/metadata/saml20-idp-remote.php' );
-	?>
 <div class="wrap">
-	<h2>SAML Identity Provider Settings</h2>
+    <h2>SAML Identity Provider Settings</h2>
+    <p><strong>Note:</strong> A valid Identity Provider (IdP) must be defined before <?php if( is_multisite()){ echo 'any sites in the network';} else{ echo 'the site';}?> can use Single-Sign On.<?php if( is_multisite()){ echo ' These settings affect all sites in your network.';}?></p>
   <?php 
-	  // Check some config setttings.
-		$etc_dir = constant('SAMLAUTH_ROOT') . '/etc';
-		$etc_writable = is_writable($etc_dir);
-		$idp_ini_present = 	file_exists(constant('SAMLAUTH_ROOT') . '/etc/config/saml20-idp-remote.ini');
-	
-		if( !$etc_writable )
-		{
-			echo '<div class="error below-h2"><p>I\'m not able to write to the folder <code>' . $etc_dir . '</code> which means you won\'t be able to change any settings! Please ensure that the web server has permission to make changes to this folder.</p></div>'."\n";
-		}
-		
-		if( $save_status === FALSE )
-		{
-			echo '<div class="error below-h2"><p>Your changes couldn&rsquo;t be saved. Is the file writable by the server?</p></div>'."\n";
-		}
-	?>
+      // Check some config setttings.
+        
+        $etc_dir =  constant('SAMLAUTH_CONF');
+        $etc_writable = is_writable($etc_dir);
+        $idp_ini_present =  file_exists(constant('SAMLAUTH_CONF') . '/config/saml20-idp-remote.ini');
+    
+        if( !$etc_writable )
+        {
+            echo '<div class="error below-h2"><p>I\'m not able to write to the folder <code>' . $etc_dir . '</code> which means you won\'t be able to change any settings! Please ensure that the web server has permission to make changes to this folder.</p></div>'."\n";
+        }
+        
+        if( isset($save_status) && $save_status === FALSE )
+        {
+            echo '<div class="error below-h2"><p>Your changes couldn&rsquo;t be saved. Is the file writable by the server?</p></div>'."\n";
+        }
+    ?>
   <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+    <?php wp_nonce_field('sso_idp_metadata'); ?>
+    <h3>Autofill using Metadata</h3>
+    <label for="metadata_url">URL to IdP Metadata </label><input type="text" name="metadata_url" size="40" />
+    <input type="submit" name="fetch_metadata" class="button" value="Fetch Metadata"/>
+  </form><br/>
+  
+  <div class="option-separator"><span class="caption">OR</span></div>
+    
+  <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
+  <?php wp_nonce_field('sso_idp_manual'); ?>
+    <h3>Enter IdP Info Manually</h3>
     <fieldset class="options">
     
-    <p><strong>Note:</strong> A Valid Identity Provider (IdP) must be declared before <?php if( is_multisite()){ echo 'any sites in the network';} else{ echo 'the site.';}?> can use Single-Sign On.<?php if( is_multisite()){ echo ' These settings affect all sites in your network.';}?></p>
+    
     
     <table class="form-table">
-    	<?php
-			foreach($metadata as $key => $idp)
-			{
+        <?php
+            foreach($metadata as $key => $idp)
+            {
 ?>
 <tr valign="top">
   <th scope="row"><label for="idp_name">IdP name</label></th> 
@@ -68,7 +59,7 @@
 </tr>
 <tr valign="top">
   <th scope="row"><label for="idp_logout">Single Logout URL</label></th> 
-  <td><input type="text" name="idp_logout" id="idp_logout" value="<?php echo $idp['SingleLogoutService']; ?>" size="40" />
+  <td><input type="text" name="idp_logout" id="idp_logout" value="<?php if( array_key_exists('SingleLogoutService',$idp) ){echo $idp['SingleLogoutService'];} ?>" size="40" />
   <span class="setting-description">The URL where logout assertions are sent.</span> 
   </td>
 </tr>
@@ -78,9 +69,9 @@
   <span class="setting-description">The fingerprint of the certificate that the IdP uses to sign assertions.</span> 
   </td>
 </tr>
-<?php	
-			}
-			?>
+<?php   
+            }
+            ?>
     </table>
     </fieldset>
     <div class="submit">

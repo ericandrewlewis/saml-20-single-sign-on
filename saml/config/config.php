@@ -69,7 +69,7 @@ $config = array (
 	 * metadata listing and diagnostics pages.
 	 * You can also put a hash here; run "bin/pwgen.php" to generate one.
 	 */
-	'auth.adminpassword'		=> 'notthedefaultadminpassword',
+	'auth.adminpassword'		=> uniqid(),
 	'admin.protectindexpage'	=> true,
 	'admin.protectmetadata'		=> false,
 
@@ -98,7 +98,7 @@ $config = array (
 	 *
 	 * See this page for a list of valid timezones: http://php.net/manual/en/timezones.php
 	 */
-	'timezone' => 'America/Chicago',
+	// 'timezone' => 'America/Chicago',
 
 	/*
 	 * Logging.

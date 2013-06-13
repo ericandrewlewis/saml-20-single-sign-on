@@ -24,8 +24,6 @@ $config = array(
 		// The entity ID of this SP.
 		// Can be NULL/unset, in which case an entity ID is generated based on the metadata URL.
 		'entityID' => NULL,
-		'certificate' => constant('SAMLAUTH_ROOT') . '/etc/certs/' . $blog_id . '/' . $blog_id . '.cer',
-		'privatekey' => constant('SAMLAUTH_ROOT') . '/etc/certs/' . $blog_id . '/' . $blog_id . '.key',
 		'sign.authnrequest' => TRUE,
 		'sign.logout' => TRUE,
 		'redirect.sign' => TRUE,
@@ -34,3 +32,15 @@ $config = array(
 		'idp' => $wp_opt['idp']
 	)
 );
+
+// Cert and Key may not exist
+
+if( file_exists( constant('SAMLAUTH_CONF') . '/certs/' . $blog_id . '/' . $blog_id . '.cer') )
+{
+	$config[$blog_id]['certificate'] = constant('SAMLAUTH_CONF') . '/certs/' . $blog_id . '/' . $blog_id . '.cer';
+}
+
+if( file_exists( constant('SAMLAUTH_CONF') . '/certs/' . $blog_id . '/' . $blog_id . '.key') )
+{
+	$config[$blog_id]['privatekey'] = constant('SAMLAUTH_CONF') . '/certs/' . $blog_id . '/' . $blog_id . '.key';
+}
