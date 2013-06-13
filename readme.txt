@@ -36,6 +36,11 @@ This is not currently possible. You should make sure that all necessary administ
 
 == Changelog ==
 
+= 0.9.1 =
+* The plugin is feature-complete until v1.0. All updates between 0.9.0 and 1.0 will be strictly bugfixes or improvements.
+* Fewer warnings and errors when not all IdP attributes are specified.
+* If a user's group membership changes at the IdP, their WordPress role will be changed accordingly at next login.
+
 = 0.9.0 =
 * Added nonces and basic type-checking to admin pages for improved security.
 * Quick access to common attributes used by popular IdP's including ADFS, OneLogin, and SimpleSAMLPHP

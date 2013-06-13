@@ -31,7 +31,7 @@ add_filter('show_password_fields', array($SAML_Client,'show_password_fields'));
 if( is_admin() )
 {
   require_once( constant('SAMLAUTH_ROOT') . '/lib/classes/saml_admin.php' );
-  $SAML_Client_Admin = new SAML_Admin();
+  $SAML_Admin = new SAML_Admin();
 }
 
 // end of file 

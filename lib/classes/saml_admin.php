@@ -70,10 +70,10 @@ Class SAML_Admin
     
     $status = array(
       'idp_entityid' => array(
-          'error_default'   => 'You have not changed your IdP&rsquo;s Entity ID from the default value. You should update it to a real value.',
+          'error_default' => 'You have not changed your IdP&rsquo;s Entity ID from the default value. You should update it to a real value.',
           'error_blank'   => 'You have not provided an Entity ID for your IdP.',
-          'warning' => 'The Entity ID you provided may not be a accessible (perhaps a bad URL). You should check that it is correct.',
-          'ok'      => 'You have provided an Entity ID for your IdP.',
+          'warning'       => 'The Entity ID you provided may not be a accessible (perhaps a bad URL). You should check that it is correct.',
+          'ok'            => 'You have provided an Entity ID for your IdP.',
         ),
         'idp_sso' => array(
           'error'   => 'You have not changed your IdP&rsquo;s Single Sign-On URL from the default value. You should update it to a real value.',
@@ -94,11 +94,16 @@ Class SAML_Admin
           'error'   => '',
           'warning' => 'You have not provided a Certificate or Private Key for this site. Users may not be able to log in using the SP-first flow.',
           'ok'      => 'You have provided a Certificate and Private Key for this site.',
-        ), 
+        ),
+        'sp_attributes' => array(
+          'error'   => 'You have not provided the neccessary SAML attributes to allow users to log in. You must <strong>at least</strong> specify SAML attributes to be used for the "username" and "Groups" fields.',
+          'warning' => 'You have not provided SAML attributes for all fields. Users may be able to log in, but may not have all attributes such as first and last name.',
+          'ok'      => 'You have provided SAML attributes for all user fields.',
+        ),
         'sp_permissions' => array(
-          'error'   => 'You have not specified any permissions for SSO users. All SSO users will either be subscribers, or fail to log in.',
-          'warning' => 'You have specified some permissions, but no SSO users will be administrators. This could cause you to lose access to your site.',
-          'ok'      => 'You have specified permissions for this site.',
+          'error'   => 'You have not specified any permission groups for SSO users. All SSO users will either be subscribers, or fail to log in.',
+          'warning' => 'You have specified some permission groups, but no SSO users will be administrators. This could cause you to lose access to your site.',
+          'ok'      => 'You have specified permission groups for this site.',
         )
     );
     
@@ -160,7 +165,7 @@ Class SAML_Admin
         }
         elseif( trim( $val['SingleLogoutService'] ) != '')
         {
-          
+          $return->html .= $status_html['ok'][0] . $status['idp_slo']['ok'] . $status_html['ok'][1];
         }
         else
         {
@@ -186,6 +191,20 @@ Class SAML_Admin
     else
     {
       $return->html .= $status_html['warning'][0] . $status['sp_certificate']['warning'] . $status_html['warning'][1];
+    }
+    
+    if( trim($this->settings->get_attribute('username')) == '' || trim($this->settings->get_attribute('groups')) == '' )
+    {
+      $return->html .= $status_html['error'][0] . $status['sp_attributes']['error'] . $status_html['error'][1];
+      $return->num_errors++;
+    }
+    elseif(trim ($this->settings->get_attribute('firstname')) == '' || trim ($this->settings->get_attribute('lastname')) == '' || trim ($this->settings->get_attribute('email')) == '')
+    {
+      $return->html .= $status_html['warning'][0] . $status['sp_attributes']['warning'] . $status_html['warning'][1];
+    }
+    else
+    {
+      $return->html .= $status_html['ok'][0] . $status['sp_attributes']['ok'] . $status_html['ok'][1];
     }
     
     if( trim($this->settings->get_group('admin')) != '' )

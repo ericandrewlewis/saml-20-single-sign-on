@@ -89,7 +89,7 @@
     </td>
   </tr> 
 </table> 
-<h3>Authorization</h3>
+<h3>Attributes</h3>
 <table class="form-table">
   <tr valign="top">
     <th scope="row">
@@ -103,39 +103,39 @@
   </tr>
   <tr valign="top">
     <th scope="row"><label for="username_attribute">Attribute to be used as username</label></th> 
-    <td><input type="text" name="username_attribute" id="username_attribute_inp" value="<?php echo $this->settings->get_attribute('username'); ?>" size="40" />
+    <td><input type="text" name="username_attribute" id="username_attribute_inp" value="<?php echo $this->settings->get_attribute('username'); ?>" size="40" data-if-empty="error" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="firstname_attribute">Attribute to be used as First Name</label></th> 
-    <td><input type="text" name="firstname_attribute" id="firstname_attribute_inp" value="<?php echo $this->settings->get_attribute('firstname'); ?>" size="40" />
+    <td><input type="text" name="firstname_attribute" id="firstname_attribute_inp" value="<?php echo $this->settings->get_attribute('firstname'); ?>" size="40" data-if-empty="warning" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="lastname_attribute">Attribute to be used as Last Name</label></th> 
-    <td><input type="text" name="lastname_attribute" id="lastname_attribute_inp" value="<?php echo $this->settings->get_attribute('lastname'); ?>" size="40" />
+    <td><input type="text" name="lastname_attribute" id="lastname_attribute_inp" value="<?php echo $this->settings->get_attribute('lastname'); ?>" size="40" data-if-empty="warning" />
     </td>
   </tr>
 
     <tr valign="top">
     <th scope="row"><label for="email_attribute">Attribute to be used as E-mail</label></th> 
-    <td><input type="text" name="email_attribute" id="email_attribute_inp" value="<?php echo $this->settings->get_attribute('email'); ?>" size="40" />
+    <td><input type="text" name="email_attribute" id="email_attribute_inp" value="<?php echo $this->settings->get_attribute('email'); ?>" size="40" data-if-empty="warning" />
     </td>
   </tr>
   <tr valign="top">
     <th scope="row"><label for="groups_attribute">Attribute to be used as Groups</label></th> 
-    <td><input type="text" name="groups_attribute" id="groups_attribute_inp" value="<?php echo $this->settings->get_attribute('groups'); ?>" size="40" />
+    <td><input type="text" name="groups_attribute" id="groups_attribute_inp" value="<?php echo $this->settings->get_attribute('groups'); ?>" size="40" data-if-empty="error" />
     </td>
   </tr>
   </table>
-  <h3>Permissions</h3>
+  <h3>Groups</h3>
   <p>You don't have to fill in all of these, but you should have at least one. Users will get their WordPress permissions based on the highest-ranking group they are members of.</p>
   <table class="form-table">
   <tr>
     <th><label for="admin_entitlement">Administrators Group Name</label></th>
-    <td><input type="text" name="admin_group" id="admin_group" value="<?php echo $this->settings->get_group('admin'); ?>" size="40" /><br/>
+    <td><input type="text" name="admin_group" id="admin_group" value="<?php echo $this->settings->get_group('admin'); ?>" size="40" data-if-empty="warning" /><br/>
     <span class="setting-description">Users in this group will be assigned the role of &ldquo;Administrator&rdquo;</span>
     </td>
   </tr>
