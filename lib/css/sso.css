@@ -19,11 +19,17 @@
 }
 
 .option-separator .caption {
-  background: #FFF;
+  background: #F1F1F1;
   position: relative;
   top: -1em;
   padding: 0 1em;
   line-height: 2;
+}
+
+.setting-description {
+  display: inline-block;
+  margin-top: 0.5em;
+  font-size: 12px;
 }
 
 table.saml_status {

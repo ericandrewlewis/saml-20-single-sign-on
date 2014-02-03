@@ -95,7 +95,7 @@ elseif (isset($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'],'sso_idp_m
     {
         if($key != $_POST['idp_identifier'])
         {
-          $this->settings->set_idp($idp_data['idp_identifier']);
+          $this->settings->set_idp($_POST['idp_identifier']);
         }
     }
     

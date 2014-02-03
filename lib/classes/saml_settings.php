@@ -10,7 +10,7 @@ Class SAML_Settings
   function __construct()
   {
     $this->wp_option = 'saml_authentication_options';
-    $this->current_version = '0.9.0';
+    $this->current_version = '0.9.2';
     $this->cache = false;
     $this->_check_environment();
     $this->_get_settings();
@@ -80,6 +80,16 @@ Class SAML_Settings
   public function get_allow_unlisted_users()
   {
     return (bool) $this->settings['allow_unlisted_users'];  
+  }
+
+  /**
+   * Get the "allow_sso_bypass" setting
+   * 
+   * @return bool
+   */
+  public function get_allow_sso_bypass()
+  {
+    return (bool) $this->settings['allow_sso_bypass'];
   }
   
   /**
@@ -270,7 +280,8 @@ Class SAML_Settings
         'contributor' => '',
         'subscriber' => '',
       ),      
-      'allow_unlisted_users' => true
+      'allow_unlisted_users' => true,
+      'allow_sso_bypass' => false
     );
     
     return($defaults);
@@ -283,6 +294,7 @@ Class SAML_Settings
    */
   private function _check_environment()
   {
+
   	if(! file_exists( constant('SAMLAUTH_CONF') ) )
   	{
   		mkdir( constant('SAMLAUTH_CONF'), 0775, true );
@@ -366,6 +378,14 @@ Class SAML_Settings
       unset($this->settings['author_group']);
       unset($this->settings['contributor_group']);
       unset($this->settings['subscriber_group']);
+    }
+    if ( (int)$previous[0] == 0 && (int)$previous[1] == 9 && (int)$previous[2] < 2 )
+    {
+      // Version 0.9.2 adds an "allow SSO bypass" option, which allows traditional login at /wp-login.php?use_sso=false
+      $changed = true;
+
+      $this->settings['option_version'] = $this->current_version;
+      $this->settings['allow_sso_bypass'] = false;
     }
     
     return($changed);

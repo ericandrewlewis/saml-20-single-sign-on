@@ -2,8 +2,8 @@
 Contributors: ktbartholomew
 Tags: sso, saml, single sign-on, simplesamlphp, onelogin, ssocircle
 Requires at least: 3.3
-Tested up to: 3.6
-Stable tag: 0.9.1
+Tested up to: 3.8
+Stable tag: 0.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,13 +28,15 @@ Because of the way SAML SSO systems work, this plugin is never aware of your pas
 
 = Do I really need an SSL certificate to use this plugin? =
 
-You may have noticed the fields that ask you to upload an SSL certificate and private key. This is only necessary if you want users to initiate their login from your website, that is, by visiting the `/wp-admin` URL on your site. Logins that originate from the SSO portal will work fine without this certificate. Because exchanging the certificate with your Identity Provider is part of the initial setup process, it is not necessary to have a publicly-signed (paid for) certificate. You can generate a self-signed certificate for free and use that.
-
-= Can I have some users use single sign-on and others use the standard WordPress login method? =
-
-This is not currently possible. You should make sure that all necessary administrators have SSO-ready user accounts before enabling the plugin.
+You may have noticed the fields that ask you to upload an SSL certificate and private key. This is only necessary if you want users to initiate their login from your website, that is, by visiting the `/wp-login.php` URL on your site. Logins that originate from the SSO portal will work fine without this certificate. Because exchanging the certificate with your Identity Provider is part of the initial setup process, it is not necessary to have a publicly-signed (paid for) certificate. You can generate a self-signed certificate for free and use that.
 
 == Changelog ==
+
+= 0.9.2 = 
+* Updates a few look-and-feel things to fit better with WP 3.8
+* Resolves an issue that was preventing the IdP from being recognized when adding IdP information manually.
+* Respects the redirect_to parameter in wp-login.php, allowing SAML logins to redirect users to any page of your choosing.
+* Adds an option to bypass SAML authentication and use the traditional method. With the option enabled, create and use a login URL like `http://example.com/wp-login.php?use_sso=false`
 
 = 0.9.1 =
 * The plugin is feature-complete until v1.0. All updates between 0.9.0 and 1.0 will be strictly bugfixes or improvements.

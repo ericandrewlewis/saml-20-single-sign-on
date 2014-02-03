@@ -8,7 +8,7 @@
 
 <h3>Your SAML Info</h3>
 <p>You will need to supply your identity provider with this information. If you want your users to be able to log in directly from WordPress (as opposed to logging in from a separate SSO portal), then you will also need to supply your IdP with the <strong>signing certificate</strong> used on the <a href="?page=sso_sp.php">Service Provider tab</a>.</p>
-
+<p>If you want to look through the metadata yourself, just browse here: <br> <a href="<?php echo constant('SAMLAUTH_MD_URL'); ?>" target="_blank"><?php echo constant('SAMLAUTH_MD_URL'); ?></a></p>
   <p>
     <strong>Your Entity ID:</strong><br/>
     <pre class="metadata-box">
@@ -33,6 +33,14 @@
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?page=' . basename(__FILE__); ?>&updated=true">
 <?php wp_nonce_field('sso_general'); ?>
 <table class="form-table">
+  <tr>
+    <th scope="row"><label for="allow_sso_bypass">Allow SSO Bypass</label></th>
+    <td>
+      <?php $checked = ($saml_opts['allow_sso_bypass']) ? 'checked="checked"' : ''; ?>
+      <input type="checkbox" name="allow_sso_bypass" id="allow_sso_bypass" value="yes" <?php echo $checked; ?>><br>
+      <span class="setting-description">Allows built-in WordPress users to login without the use of Single Sign-On. Use <a href="<?php echo wp_login_url(); ?>?use_sso=false"><?php echo wp_login_url(); ?>?use_sso=false</a>.</span>
+    </td>
+  </tr>
 	<tr valign="top">
     <th scope="row"><label for="enabled"><strong>Enable SAML authentication</strong></label></th> 
     <?php

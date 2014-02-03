@@ -16,6 +16,7 @@ class SAML_Client
 			
 			add_action('wp_authenticate',array($this,'authenticate'));
 	    add_action('wp_logout',array($this,'logout'));
+      add_action('login_form', array($this, 'modify_login_form'));
 		}
     
     // Hash to generate password for SAML users.
@@ -40,9 +41,14 @@ class SAML_Client
       header('Location: ' . get_option('siteurl'));
       exit();
     }
+    elseif ( $this->settings->get_allow_sso_bypass() == true  && (( isset($_GET['use_sso']) && $_GET['use_sso'] == 'false' ) || ( isset($_POST['use_sso']) && $_POST['use_sso'] == 'false' )) )
+    {
+      // User wants native WP login, do nothing
+    }
     else
     {
-      $this->saml->requireAuth( array('ReturnTo' => get_admin_url() ) );
+      $redirect_url = (array_key_exists('redirect_to', $_GET)) ? wp_login_url( $_GET['redirect_to']) : get_admin_url();
+      $this->saml->requireAuth( array('ReturnTo' => $redirect_url ) );
       $attrs = $this->saml->getAttributes();
       if(array_key_exists($this->settings->get_attribute('username'), $attrs) )
       {
@@ -71,6 +77,18 @@ class SAML_Client
   public function logout()
   { 
     $this->saml->logout( get_option('siteurl') );
+  }
+
+  /**
+   * Runs about halfway through the login form. If we're bypassing SSO, we need to add a field to the form
+   *
+   * @return void
+   */
+  public function modify_login_form() {
+    if( array_key_exists('use_sso', $_GET) && $_GET['use_sso'] == 'false' && $this->settings->get_allow_sso_bypass() == true )
+    {
+      echo '<input type="hidden" name="use_sso" value="false">'."\n";
+    }
   }
   
   /**
@@ -143,7 +161,14 @@ class SAML_Client
     }
     else
     {
-      wp_redirect(get_admin_url());
+      if( array_key_exists('redirect_to', $_GET) )
+      {
+        wp_redirect( $_GET['redirect_to'] );
+      }
+      else
+      {
+        wp_redirect(get_admin_url());
+      }
       exit();
     }
   }
