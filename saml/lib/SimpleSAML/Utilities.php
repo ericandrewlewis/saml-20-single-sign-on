@@ -1088,8 +1088,14 @@ class SimpleSAML_Utilities {
 		/* Check for absolute path. */
 		if(substr($path, 0, 1) === '/') {
 			/* Absolute path. */
-			$ret = '/';
-		} else {
+			return $path;
+		}
+		/* Check for Windows absolute path. */
+		elseif( preg_match('/([a-zA-Z]:|\\\\[a-zA-Z0-9])/', substr($path, 0, 3) ) ) {
+			/* Either an abspath to a drive letter or Windows Share */
+			return $path;
+		}
+		else {
 			/* Path relative to base. */
 			$ret = $base;
 		}
